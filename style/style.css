@@ -84,3 +84,17 @@ nav ul li a:hover::after {
     transform: translateY(-3px);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
+
+.Ticket-system {
+    font-size: 250%;
+    position: absolute;
+    left: 5%;
+    top: 15%;
+}
+
+.pres {
+    font-size: 120%;
+    position: absolute;
+    left: 5%;
+    top: 35%;
+}
