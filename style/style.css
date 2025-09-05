@@ -86,7 +86,7 @@ nav ul li a:hover::after {
 }
 
 .Ticket-system {
-    font-size: 250%;
+    font-size: 350%;
     position: absolute;
     left: 5%;
     top: 15%;
@@ -96,5 +96,16 @@ nav ul li a:hover::after {
     font-size: 120%;
     position: absolute;
     left: 5%;
-    top: 35%;
+    top: 40%;
+}
+
+.btn-section {
+    background: rgb(114, 114, 114);
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+
+}
+
+.our-store {
+    width: 10%;
 }
