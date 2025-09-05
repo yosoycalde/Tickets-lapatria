@@ -107,6 +107,7 @@ nav ul li a:hover::after {
     cursor: pointer;
     font-weight: bold;
     transition: all 0.3s ease;
+    width: 50%;
 }
 
 .btn-section:hover {
@@ -116,5 +117,8 @@ nav ul li a:hover::after {
 }
 
 .our-store {
-    width: 10%;
+    width: 46%;
+    position: absolute;
+    top: 50%;
+    right: 0%;
 }
