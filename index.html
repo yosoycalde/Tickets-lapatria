@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de tickets-Soporte tecnico</title>
+    <link rel="stylesheet" href="style/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Sistema De Tickets De Soporte</h1>
+            <p>Envíanos tu consulta y te ayudaremos lo antes posible</p>
+        </header>
+        <!-- pestaña de navbegacion -->
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('crear')"> Crear Ticket</button>
+            <button class="tab-button" onclick="showTab('consulta')"> Consultar Tickets</button>
+        </div>
+
+        <!-- Formulario para crear ticket -->
+        <div id="crear" class="tab-content active">
+            <div class="form-container">
+                <h2>Crear Nuevo Ticket</h2>
+                <form id="ticketForm">
+                    <div class="form-group">
+                        <label for="nombre">Nombre Completo *</label>
+                        <input type="text" id="nombre" name="nombre" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Correo Electronico *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="departamento">Departamento</label>
+                        <select id="departamento" name="departamento">
+                            <option value="">Seleccionar Departamento</option>
+                            <option value="radio">Radio</option>
+                            <option value="comercial">Comercial</option>
+                            <option value="redaccion">Redaccion</option>
+                            <option value="impresos-comerciales">Impresos Comerciales</option>
+                            <option value="financiero">Financiero</option>
+                            <option value="cartera">Cartera</option>
+                            <option value="planta">Planta</option>
+                            <option value="otros">Otros</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="categorias">Categoría Del Problema *</label>
+                        <select name="categoria" id="categoria">
+                            <option value="">Seleccionar Categoría</option>
+                            <option value="1">Soporte Tecnico</option>
+                            <option value="2">Problemas Con Contapyme</option>
+                            <option value="3">Problemas Con Ineditto</option>
+                            <option value="4">Red e Internet</option>
+                            <option value="5">Computador</option>
+                            <option value="6">Otro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="prioridad">Prioridad *</label>
+                        <select name="prioridad" id="prioridad" required>
+                            <option value="baja">Baja</option>
+                            <option value="media">Media</option>
+                            <option value="alta">Alta</option>
+                            <option value="critica">Critica</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="titulo">Titulo Del Problema *</label>
+                        <input type="text" id="titulo" name="titulo" placeholder="Resumen breve del problema" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="descripcion">Descripcion Detallada *</label>
+                        <textarea name="descripcion" id="descripcion" rows="6"
+                            placeholder="Describe el problema con el mayor detalle posible..." required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">
+                        <span class="btn-text">Enviar Ticket</span>
+                        <span class="btn-loading" style="display: none;">Enviando...</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div id="consultar" class="tab-content">
+            <div class="consulta-container">
+                <h2>Consultar Tickets</h2>
+                <div class="search-form">
+                    <input type="email" id="emailConsulta" placeholder="Ingresa tu correo electronico">
+                    <button onclick="consultarTickets()" class="search-btn">Buscar Mis Tickets</button>
+                </div>
+                <div id="ticketsResults" class="tickets-container"></div>
+            </div>
+        </div>
+        <div id="ticketModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <div id="ticketDetails"></div>
+            </div>
+        </div>
+        <div id="mensaje" class="mensaje"></div>
+    </div>
+    <footer>
+        <p>&copy; 2024 Sistema de Tickets - Empresa. Todos los derechos reservados.</p>
+    </footer>
+    <script src=""></script>
+</body>
+
+</html>
