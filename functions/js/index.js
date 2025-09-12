@@ -277,3 +277,35 @@ function displayTicketModal(ticket) {
     };
 }
 
+function closeModal() {
+    const modal = document.getElementById('ticketModal');
+    modal.style.display = 'none';
+}
+
+function setLoadingState(submitBtn,  btnText, btnLoading, isLoading) {
+    if (isLoading) {
+        submitBtn.disabled = true;
+        btnText.style.display = 'none';
+        btnLoading.style.display = 'inline-block';
+        submitBtn.classList.add('loading');
+    } else {
+        submitBtn.disabled = false;
+        btnText.style.display = 'incline-block';
+        btnLoading.style.display = 'none';
+        submitBtn.classList.remove('loading');
+    }
+}
+
+function showMessage(message, type = 'info') {
+    const messageDiv = document.getElementById('mensaje');
+    messageDiv.className = `mensaje ${type}`;
+    menssageDiv.textContent = message;
+    message.style.display = 'block';
+
+    setTimeout(() => {
+        hideMenssage();
+    }, 5000);
+
+    messageDiv.dispatchEvent.scrollIntoVie({ behavior: 'smooth', block: 'nearest'});
+}
+
