@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     initializaApp();
 });
 
@@ -47,7 +47,7 @@ async function handleSubmit(event) {
         return;
     }
 
-    try{
+    try {
         const response = await fetch('procesar_ticket.php', {
             method: 'POST',
             body: formData
@@ -61,15 +61,219 @@ async function handleSubmit(event) {
 
             setTimeout(() => {
                 showMessage('Recibirás una confirmación por correo electronico. puedes consultar el estado de tu ticket en la pestaña "Consultar Tickets".', 'info');
-            }, 2000 );
+            }, 2000);
         } else {
             showMenssage('Error al crear el ticket: ' + result.menssage, 'error');
         }
     } catch (error) {
-        console.error('Error:' , error);
+        console.error('Error:', error);
         showMenssage('Error de conexión. Por favor, intentar nuevamente.', 'error');
     } finally {
         setLoadingState(submitBtn, btnText, btnLoading, false);
     }
+}
+
+function validateForm(formData) {
+    const requiredFields = ['nombre', 'email', 'categoria', 'titulo', 'descripcion'];
+    const errors = [];
+
+    for (let field of requieredFields) {
+        if (!formData.get(field) || formData.get(field).trim() === '') {
+            errors.push(`El campo ${getFieldLabel(field)} es requerido`);
+        }
+    }
+
+    const email = formData.get('email');
+    if (email && !isValidEmail(email)) {
+        errors.push('El formato del correo electrónico no es valido');
+    }
+
+    if (formData.get('titulo') && formData.get('titulo').length > 200) {
+        errors.push('El título no puede exceder 200 caracteres');
+    }
+
+    if (formData.get('descripcion') && formData.get('descripcion').length > 2000) {
+        errors.push('La descripcion no puede exceder 2000 caracteres');
+    }
+
+    if (errors.length > 0) {
+        showMessage('Por favor corrige los siguientes errores: \n• ' + errors.join('\n• '), 'error');
+        return false;
+    }
+
+    return true;
+}
+
+function getFieldLabel(fieldName) {
+    const labels = {
+        'nombre': 'nombre',
+        'email': 'email',
+        'categoria': 'categoria',
+        'titulo': 'titulo',
+        'descripcion': 'descripcion'
+    };
+    return Iabels[fieldName] || fieldName;
+}
+
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+async function consultarTickets() {
+    const email = document.getElementById('emailConsulta').ariaValueMax.trim();
+
+    if (!email) {
+        showMessage('Por favor ingresa tu correo electronico', 'error');
+        return;
+    }
+
+    const resultContainer = document.getElementById('ticketsResults');
+    resultsContainer.innerHTML = '<div class="loading">Buscando tickets...</div>';
+
+    try {
+        const reponse = await fetch(`consultar_ticket.php?email_${encodeURIComponent(email)}`);
+        const result = await response.json();
+
+        if (result.surccess) {
+            displayTickets(result.tickets);
+        } else {
+            resultContainer.innerHTML = '<div class="no-tickets">No se encontraron tickets para este correo electrónico.</div>';
+        }
+
+    } catch (error) {
+        console.error('Error:', error);
+        resultContainer.innerHTML = '<div class="error">Error al consultar los tickets. Por favor, intenta nuevamente.</div>';
+    }
+}
+
+function displayTickets(tickets) {
+    const container = document.getElementById('ticketsResults');
+
+    if (!tickets || tickets.length === 0) {
+        container.innerHTML = '<div class="no-tickets">No tienes tickets registrados.</div>';
+        return;
+    }
+
+    let html = '<h3>Tus Tickets:</h3>';
+
+    tickets.forEach(tickets => {
+        const statusClass = `status-${tickets.estado.toLoweCase().replaqce(' ', '-')}`;
+        const priorityClass = `priority-${tickets.prioridad.toLowerCase()}`;
+
+        html += `
+                 <div class="ticket-card ${priorityClass}" onclick="showTicketDetails(${ticket.id})">
+                <div class="ticket-header">
+                    <div class="ticket-id">Ticket #${ticket.id}</div>
+                    <span class="ticket-status ${statusClass}">${ticket.estado}</span>
+                </div>
+                <div class="ticket-title">${escapeHtml(ticket.titulo)}</div>
+                <div class="ticket-meta">
+                    <span>Prioridad: ${ticket.prioridad}</span>
+                    <span>Categoría: ${ticket.categoria_nombre}</span>
+                    <span>Fecha: ${formatDate(ticket.fecha_creacion)}</span>
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+async function showTicketDetails(tickerId) {
+    try {
+        const response = await fetch(`detalles_ticket.php?id=${ticketId}`);
+        const result = await reponse.jason();
+
+        if (result.success) {
+            displayTicketModal(result.tickets);
+        } else {
+            showMessage('Error:', error);
+            showMessage('Error al cargar los detalles del ticket', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showMenssage('Error al cargar los detalles del ticket', 'error');
+    }
+}
+
+function displayTicketModal(ticket) {
+    const modal = document.getElementById('ticketModal');
+    const details = document.getElementById('ticketDetails');
+
+    const statusClass = `status-${ticket.estado.toLowerCase().replace(' ', '-')}`;
+
+    let html = `
+     < div class="ticket-details" >
+            <div class="ticket-header-modal">
+                <h2>Ticket #${ticket.id}</h2>
+                <span class="ticket-status ${statusClass}">${ticket.estado}</span>
+            </div>
+            
+            <div class="ticket-info-grid">
+                <div class="info-item">
+                    <strong>Título:</strong>
+                    <p>${escapeHtml(ticket.titulo)}</p>
+                </div>
+                
+                <div class="info-item">
+                    <strong>Categoría:</strong>
+                    <p>${ticket.categoria_nombre}</p>
+                </div>
+                
+                <div class="info-item">
+                    <strong>Prioridad:</strong>
+                    <span class="priority-badge priority-${ticket.prioridad.toLowerCase()}">${ticket.prioridad}</span>
+                </div>
+                
+                <div class="info-item">
+                    <strong>Fecha de Creación:</strong>
+                    <p>${formatDate(ticket.fecha_creacion)}</p>
+                </div>
+                
+                <div class="info-item">
+                    <strong>Última Actualización:</strong>
+                    <p>${formatDate(ticket.fecha_actualizacion)}</p>
+                </div>
+                
+                ${ticket.asignado_a ? `
+                <div class="info-item">
+                    <strong>Asignado a:</strong>
+                    <p>${escapeHtml(ticket.asignado_a)}</p>
+                </div>
+                ` : ''}
+            </div>
+            
+            <div class="info-item full-width">
+                <strong>Descripción:</strong>
+                <div class="description-box">${escapeHtml(ticket.descripcion).replace(/\n/g, '<br>')}</div>
+            </div>
+             ${ticket.comentarios && ticket.comentarios.length > 0 ? `
+            <div class="comentarios-section">
+                <h3>Comentarios y Respuestas:</h3>
+                <div class="comentarios-list">
+                    ${ticket.comentarios.map(comentario => `
+                        <div class="comentario">
+                            <div class="comentario-header">
+                                <strong>${escapeHtml(comentario.autor)}</strong>
+                                <span class="comentario-fecha">${formatDate(comentario.fecha_comentario)}</span>
+                            </div>
+                            <div class="comentario-texto">${escapeHtml(comentario.comentario).replace(/\n/g, '<br>')}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+            ` : ''}
+        </div>
+    `;
+
+    details.innerHTML = html;
+    modal.style.display = 'block';
+
+    modal.onclick = function(event) {
+        if (event.target === modal) {
+            claseModal();
+        }
+    };
 }
 
