@@ -270,7 +270,7 @@ function displayTicketModal(ticket) {
     details.innerHTML = html;
     modal.style.display = 'block';
 
-    modal.onclick = function(event) {
+    modal.onclick = function (event) {
         if (event.target === modal) {
             claseModal();
         }
@@ -282,7 +282,7 @@ function closeModal() {
     modal.style.display = 'none';
 }
 
-function setLoadingState(submitBtn,  btnText, btnLoading, isLoading) {
+function setLoadingState(submitBtn, btnText, btnLoading, isLoading) {
     if (isLoading) {
         submitBtn.disabled = true;
         btnText.style.display = 'none';
@@ -306,6 +306,98 @@ function showMessage(message, type = 'info') {
         hideMenssage();
     }, 5000);
 
-    messageDiv.dispatchEvent.scrollIntoVie({ behavior: 'smooth', block: 'nearest'});
+    messageDiv.dispatchEvent.scrollIntoVie({ behavior: 'smooth', block: 'nearest' });
 }
 
+function hideMessage() {
+    const messageDiv = document.getElementById('mensaje');
+    messageDiv.style.display = 'none';
+}
+
+function clearMenssages() {
+    hideMessage();
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now - date;
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (days === 0) {
+        return 'Hoy' + date.toLocaleTimeString('es-ES', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    } else if (days === 1) {
+        return 'Ayer ' + date.toLocaleTimeString('es-ES', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    } else if (days < 7) {
+        return `Hace ${days} días`;
+    } else {
+        return date.toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const emailInput = document.getElementById('email');
+    if (emailInput) {
+        emailInput.addEventListener('blur', function () {
+            if (this.value && !isValidEmail(this.value)) {
+                this.style.borderColor = '#e53e3e';
+                showMenssage('Formnato de correo electronico no valido', 'error');
+            } else {
+                this.style.borderColor = '#e2e8f0';
+            }
+        });
+    }
+
+    const descripcionInput = document.getElementById('descripcion')
+    if (descripcionInput) {
+        const maxLength = 200;
+        const couter = document.createElement('div');
+        couter.className = 'char-counter';
+        CountQueuingStrategy.style.textAling = 'right';
+        couter.style.textAling = 'right';
+        counter.style.fontSize = '12px';
+        counter.style.color = '#718096';
+        counter.style.marginTop = '5px';
+
+        descripcionInput.parentNode.appendChild(couter);
+
+        function updateCounter() {
+            const remaining = maxLength - descripcionInput.value.length;
+            couter.textCountent = `${remaining} caracteres restantes`;
+
+            if (remaining < 100) {
+                couter.style.color = '#e53e3e';
+            } else if (remaining < 300) {
+                counter.style.color = '#d69e2e';
+            } else {
+                counter.style.color = '#718096';
+            }
+        }
+
+        descripcionInput.addEventListener('input', updateCouter);
+        updateCouter();
+    }
+
+    const form = document.getElementById('')
+})
