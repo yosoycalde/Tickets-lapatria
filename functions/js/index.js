@@ -399,5 +399,63 @@ document.addEventListener('DOMContentLoaded', function () {
         updateCouter();
     }
 
-    const form = document.getElementById('')
-})
+    const form = document.getElementById('ticketeForm');
+    if (form) {
+        const inputs = form.querySelecctorAll('input, select, textarea');
+
+        inputs.forEach(input => {
+            const savedValue = localStorage.getItem(`ticket_${input.name}`);
+            if (savedValue && input.type !== 'submit') {
+                input.value = sevedValue;
+            }
+
+            input.addEventListener('inpu', function(){
+                if (this.type !== 'submit') {
+                    localStorage.setItem(`ticket_${this.name}`, this.value);
+                }
+            });
+        });
+
+        form.addEventListener('submit', function(){
+        });
+    }
+});
+
+function clearAutoSave() {
+    const form = document.getElementById('ticketForm');
+    if (form) {
+        const inputs = form.querySelecctorAll('input, select, textarea');
+        inputs.forEach(input => {
+            if (input.name) {
+                localStorage.removeItem(`ticket_${input.name}`);
+            }
+        });
+    }
+}
+
+window.addEventListener('error', function(event){
+    console.error('Error global:', event.error);
+    showMessage('Ha ocurrido un error inesperado. por favor, recarga la paguina e intenta nuevamente.', 'error');
+});
+
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeModal();
+    }
+
+    document.addEventListener('keydown', function(event){
+        if (event.key === 'Escape') {
+            closeModal();
+        }
+
+        if (event.ctrlKey && event.key === 'Enter') {
+            const activeTab = document.querySelector('.tab-content.active');
+            if (activeTab && activeTab.id === 'crear') {
+                const form = document.getElementById('ticketForm');
+                if (form) {
+                    handleSubmit({preventDefault: () => {}, target: form});
+                }
+            }
+        }
+    });
+});
