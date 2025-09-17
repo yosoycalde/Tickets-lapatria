@@ -1,59 +1,27 @@
 <?php
+require_once '../php/config.php';
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET');
 header('Access-Control-Allow-Headers: Content-Type');
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "sistema_tickets";
-
-function sanitizeInput($data) {
-    return htmlspecialchars(strip_tags(trim($data)));
-}
-
-function validateEmail($email) {
-    return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
-}
-
-function sendResponse($success, $message, $data = null) {
-    $response = [
-        'success' => $success,
-        'message' => $message
-    ];
-
-    if ($data !== null) {
-        $response = array_merge($response, $data);
-    }
-
-    echo json_encode($response, JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
 try {
     if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-        sendResponse(false, 'Método no permitido');
+        Utils::sendResponse(false, 'Método no permitido');
     }
 
-    $email = sanitizeInput($_GET['email'] ?? '');
+    $email = Utils::sanitizeInput($_GET['email'] ?? '');
 
     if (empty($email)) {
-        sendResponse(false, 'Email es requerido');
+        Utils::sendResponse(false, 'Email es requerido');
     }
 
-    if (!validateEmail($email)) {
-        sendResponse(false, 'Formato de email no válido');
+    if (!Utils::validateEmail($email)) {
+        Utils::sendResponse(false, 'Formato de email no válido');
     }
 
-    $conn = new mysqli($servername, $username, $password, $dbname);
-
-    if ($conn->connect_error) {
-        error_log("Error de conexión: " . $conn->connect_error);
-        sendResponse(false, 'Error de conexión a la base de datos');
-    }
-
-    $conn->set_charset("utf8");
+    $conn = DatabaseConfig::getDirectConnection();
 
     $stmt = $conn->prepare("
         SELECT 
@@ -82,7 +50,7 @@ try {
     $result = $stmt->get_result();
 
     if ($result->num_rows === 0) {
-        sendResponse(false, 'No se encontraron tickets para este email');
+        Utils::sendResponse(false, 'No se encontraron tickets para este email');
     }
 
     $tickets = [];
@@ -108,17 +76,15 @@ try {
 
     error_log("Consulta de tickets realizada - Email: $email, Tickets encontrados: " . count($tickets));
 
-    sendResponse(true, 'Tickets obtenidos exitosamente', [
+    Utils::sendResponse(true, 'Tickets obtenidos exitosamente', [
         'tickets' => $tickets,
         'total' => count($tickets)
     ]);
 
 } catch (Exception $e) {
     error_log("Error al consultar tickets: " . $e->getMessage());
-    sendResponse(false, 'Error interno del servidor');
+    Utils::sendResponse(false, 'Error de conexión a la base de datos: ' . $e->getMessage());
 } finally {
-    if (isset($conn)) {
-        $conn->close();
-    }
+    DatabaseConfig::getInstance()->closeConnection();
 }
 ?>

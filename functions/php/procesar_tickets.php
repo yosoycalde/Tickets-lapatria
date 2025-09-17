@@ -1,57 +1,25 @@
 <?php
+require_once '../php/config.php';
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type');
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "sistema_tickets";
-
-function sanitizeInput($data) {
-    return htmlspecialchars(strip_tags(trim($data)));
-}
-
-function validateEmail($email) {
-    return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
-}
-
-function sendResponse($success, $message, $data = null) {
-    $response = [
-        'success' => $success,
-        'message' => $message
-    ];
-
-    if ($data !== null) {
-        $response = array_merge($response, $data);
-    }
-
-    echo json_encode($response, JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
 try {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        sendResponse(false, 'Método no permitido');
+        Utils::sendResponse(false, 'Método no permitido');
     }
 
-    $conn = new mysqli($servername, $username, $password, $dbname);
+    $conn = DatabaseConfig::getDirectConnection();
 
-    if ($conn->connect_error) {
-        error_log("Error de conexión: " . $conn->connect_error);
-        sendResponse(false, 'Error de conexión a la base de datos');
-    }
-
-    $conn->set_charset("utf8");
-
-    $nombre = sanitizeInput($_POST['nombre'] ?? '');
-    $email = sanitizeInput($_POST['email'] ?? '');
-    $departamento = sanitizeInput($_POST['departamento'] ?? '');
+    $nombre = Utils::sanitizeInput($_POST['nombre'] ?? '');
+    $email = Utils::sanitizeInput($_POST['email'] ?? '');
+    $departamento = Utils::sanitizeInput($_POST['departamento'] ?? '');
     $categoria_id = filter_var($_POST['categoria'] ?? '', FILTER_VALIDATE_INT);
-    $prioridad = sanitizeInput($_POST['prioridad'] ?? 'media');
-    $titulo = sanitizeInput($_POST['titulo'] ?? '');
-    $descripcion = sanitizeInput($_POST['descripcion'] ?? '');
+    $prioridad = Utils::sanitizeInput($_POST['prioridad'] ?? 'media');
+    $titulo = Utils::sanitizeInput($_POST['titulo'] ?? '');
+    $descripcion = Utils::sanitizeInput($_POST['descripcion'] ?? '');
 
     $errors = [];
 
@@ -63,7 +31,7 @@ try {
 
     if (empty($email)) {
         $errors[] = 'El correo electrónico es requerido';
-    } elseif (!validateEmail($email)) {
+    } elseif (!Utils::validateEmail($email)) {
         $errors[] = 'El formato del correo electrónico no es válido';
     } elseif (strlen($email) > 150) {
         $errors[] = 'El correo electrónico no puede exceder 150 caracteres';
@@ -94,7 +62,7 @@ try {
     }
 
     if (!empty($errors)) {
-        sendResponse(false, implode(', ', $errors));
+        Utils::sendResponse(false, implode(', ', $errors));
     }
 
     $conn->autocommit(false);
@@ -147,7 +115,7 @@ try {
 
         error_log("Ticket creado exitosamente - ID: $ticket_id, Usuario: $email");
 
-        sendResponse(true, 'Ticket creado exitosamente', [
+        Utils::sendResponse(true, 'Ticket creado exitosamente', [
             'ticket_id' => $ticket_id,
             'usuario_id' => $usuario_id
         ]);
@@ -155,14 +123,14 @@ try {
     } catch (Exception $e) {
         $conn->rollback();
         error_log("Error al crear ticket: " . $e->getMessage());
-        sendResponse(false, 'Error interno del servidor');
+        Utils::sendResponse(false, 'Error interno del servidor');
     }
 } catch (Exception $e) {
     error_log("Error general: " . $e->getMessage());
-    sendResponse(false, 'Error interno del servidor');
+    Utils::sendResponse(false, 'Error de conexión a la base de datos: ' . $e->getMessage());
 } finally {
     if (isset($conn)) {
-        $conn->close();
+        DatabaseConfig::getInstance()->closeConnection();
     }
 }
 ?>
