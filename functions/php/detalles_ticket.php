@@ -1,5 +1,5 @@
 <?php
-require_once '../php/config.php';
+require_once 'config.php';
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
@@ -19,6 +19,7 @@ try {
 
     $conn = DatabaseConfig::getDirectConnection();
 
+    // Obtener información del ticket
     $stmt = $conn->prepare("
         SELECT
             t.id,
@@ -50,6 +51,7 @@ try {
 
     $ticket = $result->fetch_assoc();
 
+    // Obtener comentarios del ticket
     $comments_stmt = $conn->prepare("
         SELECT
             id,
@@ -74,6 +76,7 @@ try {
         ];
     }
 
+    // Preparar datos del ticket
     $ticket_data = [
         'id' => (int)$ticket['id'],
         'titulo' => $ticket['titulo'],
@@ -94,6 +97,7 @@ try {
         'total_comentarios' => count($comentarios)
     ];
 
+    // Obtener tickets relacionados (mismo usuario y categoría)
     $related_stmt = $conn->prepare("
         SELECT 
             t.id,

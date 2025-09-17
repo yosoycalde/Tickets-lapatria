@@ -28,7 +28,6 @@ function showTab(tabName) {
     }
 
     event.target.classList.add('active');
-
     clearMessages();
 }
 
@@ -48,7 +47,7 @@ async function handleSubmit(event) {
     }
 
     try {
-        const response = await fetch('functions/php/procesar_ticket.php', {
+        const response = await fetch('functions/php/procesar_tickets.php', {
             method: 'POST',
             body: formData
         });
@@ -133,7 +132,7 @@ async function consultarTickets() {
     resultContainer.innerHTML = '<div class="loading">Buscando tickets...</div>';
 
     try {
-        const response = await fetch(`functions/php/consultar_ticket.php?email=${encodeURIComponent(email)}`);
+        const response = await fetch(`functions/php/consultar_tickets.php?email=${encodeURIComponent(email)}`);
         const result = await response.json();
 
         if (result.success) {
