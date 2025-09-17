@@ -50,7 +50,6 @@ try {
 
     $ticket = $result->fetch_assoc();
 
-    // Obtener comentarios del ticket
     $comments_stmt = $conn->prepare("
         SELECT
             id,
@@ -95,7 +94,6 @@ try {
         'total_comentarios' => count($comentarios)
     ];
 
-    // Obtener tickets relacionados (del mismo usuario y categoría)
     $related_stmt = $conn->prepare("
         SELECT 
             t.id,

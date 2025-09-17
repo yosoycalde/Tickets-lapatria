@@ -68,7 +68,6 @@ try {
     $conn->autocommit(false);
 
     try {
-        // Verificar si el usuario ya existe
         $stmt_user_check = $conn->prepare("SELECT id FROM usuarios WHERE email = ?");
         $stmt_user_check->bind_param("s", $email);
         $stmt_user_check->execute();
@@ -78,19 +77,16 @@ try {
             $user_data = $result_user->fetch_assoc();
             $usuario_id = $user_data['id'];
 
-            // Actualizar datos del usuario existente
             $stmt_user_update = $conn->prepare("UPDATE usuarios SET nombre = ?, departamento = ? WHERE id = ?");
             $stmt_user_update->bind_param("ssi", $nombre, $departamento, $usuario_id);
             $stmt_user_update->execute();
         } else {
-            // Insertar nuevo usuario
             $stmt_user_insert = $conn->prepare("INSERT INTO usuarios (nombre, email, departamento) VALUES (?, ?, ?)");
             $stmt_user_insert->bind_param("sss", $nombre, $email, $departamento);
             $stmt_user_insert->execute();
             $usuario_id = $conn->insert_id;
         }
 
-        // Verificar que la categoría existe
         $stmt_cat_check = $conn->prepare("SELECT id FROM categorias WHERE id = ?");
         $stmt_cat_check->bind_param("i", $categoria_id);
         $stmt_cat_check->execute();
