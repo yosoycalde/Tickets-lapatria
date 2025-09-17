@@ -594,12 +594,10 @@ footer {
     }
 }
 
-/* Smooth scrolling */
 html {
     scroll-behavior: smooth;
 }
 
-/* Efecto hover para las cards */
 .ticket-card {
     position: relative;
     overflow: hidden;
