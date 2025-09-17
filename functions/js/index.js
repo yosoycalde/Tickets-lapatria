@@ -1,20 +1,20 @@
 document.addEventListener('DOMContentLoaded', function () {
-    initializaApp();
+    initializeApp();
 });
 
 function initializeApp() {
-    const form = document.getElementById('ticketForm')
+    const form = document.getElementById('ticketForm');
     if (form) {
-        form.addEventListener('submit', handleSumit);
+        form.addEventListener('submit', handleSubmit);
     }
 
     document.querySelectorAll('.tab-button').forEach(button => {
-        button.addEventListener('click', clearMenssages);
+        button.addEventListener('click', clearMessages);
     });
 }
 
 function showTab(tabName) {
-    document.querySelectorAll('tab-content').forEach(tab => {
+    document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('active');
     });
 
@@ -22,14 +22,14 @@ function showTab(tabName) {
         button.classList.remove('active');
     });
 
-    const targetTab = document.getElementById(tanName);
+    const targetTab = document.getElementById(tabName);
     if (targetTab) {
-        targetTab.classList.add('active')
+        targetTab.classList.add('active');
     }
 
-    event.target.classList.add('acive');
+    event.target.classList.add('active');
 
-    clearMenssages();
+    clearMessages();
 }
 
 async function handleSubmit(event) {
@@ -48,26 +48,27 @@ async function handleSubmit(event) {
     }
 
     try {
-        const response = await fetch('procesar_ticket.php', {
+        const response = await fetch('functions/php/procesar_ticket.php', {
             method: 'POST',
             body: formData
         });
 
         const result = await response.json();
 
-        if (result.surccess) {
-            showMenssage('¡ticket creado exitosamente! ID: ' + result.ticket_id, 'success');
+        if (result.success) {
+            showMessage('¡Ticket creado exitosamente! ID: ' + result.ticket_id, 'success');
             document.getElementById('ticketForm').reset();
+            clearAutoSave();
 
             setTimeout(() => {
-                showMessage('Recibirás una confirmación por correo electronico. puedes consultar el estado de tu ticket en la pestaña "Consultar Tickets".', 'info');
+                showMessage('Recibirás una confirmación por correo electrónico. Puedes consultar el estado de tu ticket en la pestaña "Consultar Tickets".', 'info');
             }, 2000);
         } else {
-            showMenssage('Error al crear el ticket: ' + result.menssage, 'error');
+            showMessage('Error al crear el ticket: ' + result.message, 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        showMenssage('Error de conexión. Por favor, intentar nuevamente.', 'error');
+        showMessage('Error de conexión. Por favor, intenta nuevamente.', 'error');
     } finally {
         setLoadingState(submitBtn, btnText, btnLoading, false);
     }
@@ -77,7 +78,7 @@ function validateForm(formData) {
     const requiredFields = ['nombre', 'email', 'categoria', 'titulo', 'descripcion'];
     const errors = [];
 
-    for (let field of requieredFields) {
+    for (let field of requiredFields) {
         if (!formData.get(field) || formData.get(field).trim() === '') {
             errors.push(`El campo ${getFieldLabel(field)} es requerido`);
         }
@@ -85,7 +86,7 @@ function validateForm(formData) {
 
     const email = formData.get('email');
     if (email && !isValidEmail(email)) {
-        errors.push('El formato del correo electrónico no es valido');
+        errors.push('El formato del correo electrónico no es válido');
     }
 
     if (formData.get('titulo') && formData.get('titulo').length > 200) {
@@ -93,7 +94,7 @@ function validateForm(formData) {
     }
 
     if (formData.get('descripcion') && formData.get('descripcion').length > 2000) {
-        errors.push('La descripcion no puede exceder 2000 caracteres');
+        errors.push('La descripción no puede exceder 2000 caracteres');
     }
 
     if (errors.length > 0) {
@@ -106,13 +107,13 @@ function validateForm(formData) {
 
 function getFieldLabel(fieldName) {
     const labels = {
-        'nombre': 'nombre',
-        'email': 'email',
-        'categoria': 'categoria',
-        'titulo': 'titulo',
-        'descripcion': 'descripcion'
+        'nombre': 'Nombre',
+        'email': 'Email',
+        'categoria': 'Categoría',
+        'titulo': 'Título',
+        'descripcion': 'Descripción'
     };
-    return Iabels[fieldName] || fieldName;
+    return labels[fieldName] || fieldName;
 }
 
 function isValidEmail(email) {
@@ -121,21 +122,21 @@ function isValidEmail(email) {
 }
 
 async function consultarTickets() {
-    const email = document.getElementById('emailConsulta').ariaValueMax.trim();
+    const email = document.getElementById('emailConsulta').value.trim();
 
     if (!email) {
-        showMessage('Por favor ingresa tu correo electronico', 'error');
+        showMessage('Por favor ingresa tu correo electrónico', 'error');
         return;
     }
 
     const resultContainer = document.getElementById('ticketsResults');
-    resultsContainer.innerHTML = '<div class="loading">Buscando tickets...</div>';
+    resultContainer.innerHTML = '<div class="loading">Buscando tickets...</div>';
 
     try {
-        const reponse = await fetch(`consultar_ticket.php?email_${encodeURIComponent(email)}`);
+        const response = await fetch(`functions/php/consultar_ticket.php?email=${encodeURIComponent(email)}`);
         const result = await response.json();
 
-        if (result.surccess) {
+        if (result.success) {
             displayTickets(result.tickets);
         } else {
             resultContainer.innerHTML = '<div class="no-tickets">No se encontraron tickets para este correo electrónico.</div>';
@@ -157,12 +158,12 @@ function displayTickets(tickets) {
 
     let html = '<h3>Tus Tickets:</h3>';
 
-    tickets.forEach(tickets => {
-        const statusClass = `status-${tickets.estado.toLoweCase().replaqce(' ', '-')}`;
-        const priorityClass = `priority-${tickets.prioridad.toLowerCase()}`;
+    tickets.forEach(ticket => {
+        const statusClass = `status-${ticket.estado.toLowerCase().replace(' ', '-')}`;
+        const priorityClass = `priority-${ticket.prioridad.toLowerCase()}`;
 
         html += `
-                 <div class="ticket-card ${priorityClass}" onclick="showTicketDetails(${ticket.id})">
+            <div class="ticket-card ${priorityClass}" onclick="showTicketDetails(${ticket.id})">
                 <div class="ticket-header">
                     <div class="ticket-id">Ticket #${ticket.id}</div>
                     <span class="ticket-status ${statusClass}">${ticket.estado}</span>
@@ -180,20 +181,19 @@ function displayTickets(tickets) {
     container.innerHTML = html;
 }
 
-async function showTicketDetails(tickerId) {
+async function showTicketDetails(ticketId) {
     try {
-        const response = await fetch(`detalles_ticket.php?id=${ticketId}`);
-        const result = await reponse.jason();
+        const response = await fetch(`functions/php/detalles_ticket.php?id=${ticketId}`);
+        const result = await response.json();
 
         if (result.success) {
-            displayTicketModal(result.tickets);
+            displayTicketModal(result.ticket);
         } else {
-            showMessage('Error:', error);
             showMessage('Error al cargar los detalles del ticket', 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        showMenssage('Error al cargar los detalles del ticket', 'error');
+        showMessage('Error al cargar los detalles del ticket', 'error');
     }
 }
 
@@ -204,7 +204,7 @@ function displayTicketModal(ticket) {
     const statusClass = `status-${ticket.estado.toLowerCase().replace(' ', '-')}`;
 
     let html = `
-     < div class="ticket-details" >
+        <div class="ticket-details">
             <div class="ticket-header-modal">
                 <h2>Ticket #${ticket.id}</h2>
                 <span class="ticket-status ${statusClass}">${ticket.estado}</span>
@@ -248,7 +248,8 @@ function displayTicketModal(ticket) {
                 <strong>Descripción:</strong>
                 <div class="description-box">${escapeHtml(ticket.descripcion).replace(/\n/g, '<br>')}</div>
             </div>
-             ${ticket.comentarios && ticket.comentarios.length > 0 ? `
+            
+            ${ticket.comentarios && ticket.comentarios.length > 0 ? `
             <div class="comentarios-section">
                 <h3>Comentarios y Respuestas:</h3>
                 <div class="comentarios-list">
@@ -272,7 +273,7 @@ function displayTicketModal(ticket) {
 
     modal.onclick = function (event) {
         if (event.target === modal) {
-            claseModal();
+            closeModal();
         }
     };
 }
@@ -290,7 +291,7 @@ function setLoadingState(submitBtn, btnText, btnLoading, isLoading) {
         submitBtn.classList.add('loading');
     } else {
         submitBtn.disabled = false;
-        btnText.style.display = 'incline-block';
+        btnText.style.display = 'inline-block';
         btnLoading.style.display = 'none';
         submitBtn.classList.remove('loading');
     }
@@ -299,14 +300,14 @@ function setLoadingState(submitBtn, btnText, btnLoading, isLoading) {
 function showMessage(message, type = 'info') {
     const messageDiv = document.getElementById('mensaje');
     messageDiv.className = `mensaje ${type}`;
-    menssageDiv.textContent = message;
-    message.style.display = 'block';
+    messageDiv.textContent = message;
+    messageDiv.style.display = 'block';
 
     setTimeout(() => {
-        hideMenssage();
+        hideMessage();
     }, 5000);
 
-    messageDiv.dispatchEvent.scrollIntoVie({ behavior: 'smooth', block: 'nearest' });
+    messageDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function hideMessage() {
@@ -314,7 +315,7 @@ function hideMessage() {
     messageDiv.style.display = 'none';
 }
 
-function clearMenssages() {
+function clearMessages() {
     hideMessage();
 }
 
@@ -334,7 +335,7 @@ function formatDate(dateString) {
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
     if (days === 0) {
-        return 'Hoy' + date.toLocaleTimeString('es-ES', {
+        return 'Hoy ' + date.toLocaleTimeString('es-ES', {
             hour: '2-digit',
             minute: '2-digit'
         });
@@ -356,38 +357,39 @@ function formatDate(dateString) {
     }
 }
 
+// Validación en tiempo real para email
 document.addEventListener('DOMContentLoaded', function () {
     const emailInput = document.getElementById('email');
     if (emailInput) {
         emailInput.addEventListener('blur', function () {
             if (this.value && !isValidEmail(this.value)) {
                 this.style.borderColor = '#e53e3e';
-                showMenssage('Formnato de correo electronico no valido', 'error');
+                showMessage('Formato de correo electrónico no válido', 'error');
             } else {
                 this.style.borderColor = '#e2e8f0';
             }
         });
     }
 
-    const descripcionInput = document.getElementById('descripcion')
+    // Contador de caracteres para descripción
+    const descripcionInput = document.getElementById('descripcion');
     if (descripcionInput) {
-        const maxLength = 200;
-        const couter = document.createElement('div');
-        couter.className = 'char-counter';
-        CountQueuingStrategy.style.textAling = 'right';
-        couter.style.textAling = 'right';
+        const maxLength = 2000;
+        const counter = document.createElement('div');
+        counter.className = 'char-counter';
+        counter.style.textAlign = 'right';
         counter.style.fontSize = '12px';
         counter.style.color = '#718096';
         counter.style.marginTop = '5px';
 
-        descripcionInput.parentNode.appendChild(couter);
+        descripcionInput.parentNode.appendChild(counter);
 
         function updateCounter() {
             const remaining = maxLength - descripcionInput.value.length;
-            couter.textCountent = `${remaining} caracteres restantes`;
+            counter.textContent = `${remaining} caracteres restantes`;
 
             if (remaining < 100) {
-                couter.style.color = '#e53e3e';
+                counter.style.color = '#e53e3e';
             } else if (remaining < 300) {
                 counter.style.color = '#d69e2e';
             } else {
@@ -395,28 +397,26 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        descripcionInput.addEventListener('input', updateCouter);
-        updateCouter();
+        descripcionInput.addEventListener('input', updateCounter);
+        updateCounter();
     }
 
-    const form = document.getElementById('ticketeForm');
+    // Auto-guardado del formulario
+    const form = document.getElementById('ticketForm');
     if (form) {
-        const inputs = form.querySelecctorAll('input, select, textarea');
+        const inputs = form.querySelectorAll('input, select, textarea');
 
         inputs.forEach(input => {
             const savedValue = localStorage.getItem(`ticket_${input.name}`);
             if (savedValue && input.type !== 'submit') {
-                input.value = sevedValue;
+                input.value = savedValue;
             }
 
-            input.addEventListener('inpu', function(){
+            input.addEventListener('input', function(){
                 if (this.type !== 'submit') {
                     localStorage.setItem(`ticket_${this.name}`, this.value);
                 }
             });
-        });
-
-        form.addEventListener('submit', function(){
         });
     }
 });
@@ -424,7 +424,7 @@ document.addEventListener('DOMContentLoaded', function () {
 function clearAutoSave() {
     const form = document.getElementById('ticketForm');
     if (form) {
-        const inputs = form.querySelecctorAll('input, select, textarea');
+        const inputs = form.querySelectorAll('input, select, textarea');
         inputs.forEach(input => {
             if (input.name) {
                 localStorage.removeItem(`ticket_${input.name}`);
@@ -433,29 +433,26 @@ function clearAutoSave() {
     }
 }
 
+// Manejo global de errores
 window.addEventListener('error', function(event){
     console.error('Error global:', event.error);
-    showMessage('Ha ocurrido un error inesperado. por favor, recarga la paguina e intenta nuevamente.', 'error');
+    showMessage('Ha ocurrido un error inesperado. Por favor, recarga la página e intenta nuevamente.', 'error');
 });
 
+// Atajos de teclado
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
         closeModal();
     }
 
-    document.addEventListener('keydown', function(event){
-        if (event.key === 'Escape') {
-            closeModal();
-        }
-
-        if (event.ctrlKey && event.key === 'Enter') {
-            const activeTab = document.querySelector('.tab-content.active');
-            if (activeTab && activeTab.id === 'crear') {
-                const form = document.getElementById('ticketForm');
-                if (form) {
-                    handleSubmit({preventDefault: () => {}, target: form});
-                }
+    if (event.ctrlKey && event.key === 'Enter') {
+        const activeTab = document.querySelector('.tab-content.active');
+        if (activeTab && activeTab.id === 'crear') {
+            const form = document.getElementById('ticketForm');
+            if (form) {
+                const submitEvent = new Event('submit');
+                form.dispatchEvent(submitEvent);
             }
         }
-    });
+    }
 });

@@ -7,10 +7,10 @@ header('Access-Control-Allow-Headers: Content-Type');
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "borrador-tickets";
+$dbname = "sistema_tickets";
 
 function sanitizeInput($data) {
-    return htmlapecialchars(strip_tags(trim($data)));
+    return htmlspecialchars(strip_tags(trim($data)));
 }
 
 function sendResponse($success, $message, $data = null) {
@@ -32,23 +32,23 @@ try {
         sendResponse(false, 'Método no permitido');
     }
 
-    $ticket_id = filter_var($_GET['id']?? '', FILTER_VALIDATE_INT);
+    $ticket_id = filter_var($_GET['id'] ?? '', FILTER_VALIDATE_INT);
 
     if (!$ticket_id || $ticket_id <= 0) {
-        sendResponse(false, 'ID de ticket no valido');
+        sendResponse(false, 'ID de ticket no válido');
     }
 
     $conn = new mysqli($servername, $username, $password, $dbname);
 
     if ($conn->connect_error) {
         error_log("Error de conexión: " . $conn->connect_error);
-        sendResponse(false,'Error de conexión a la base de datos');
+        sendResponse(false, 'Error de conexión a la base de datos');
     }
 
     $conn->set_charset("utf8");
 
     $stmt = $conn->prepare("
-    SELECT
+        SELECT
             t.id,
             t.titulo,
             t.descripcion,
@@ -62,10 +62,10 @@ try {
             u.nombre as usuario_nombre,
             u.email as usuario_email,
             u.departamento as usuario_departamento
-            FORM tickets t
-            INNE JOIN usuarios u ON t.ususarios_id = u.id
-            INNER JOIN categorias c ON t.categoria_id = c.id
-            WHERE T.ID = ?
+        FROM tickets t
+        INNER JOIN usuarios u ON t.usuario_id = u.id
+        INNER JOIN categorias c ON t.categoria_id = c.id
+        WHERE t.id = ?
     ");
 
     $stmt->bind_param("i", $ticket_id);
@@ -78,15 +78,16 @@ try {
 
     $ticket = $result->fetch_assoc();
 
+    // Obtener comentarios del ticket
     $comments_stmt = $conn->prepare("
         SELECT
             id,
             autor,
             comentario,
             fecha_comentario
-        FORM comentarios
+        FROM comentarios
         WHERE ticket_id = ?
-        ORDER BY fecha_comentarios ASC
+        ORDER BY fecha_comentario ASC
     ");
     $comments_stmt->bind_param("i", $ticket_id);
     $comments_stmt->execute();
@@ -96,6 +97,7 @@ try {
     while ($comment_row = $comments_result->fetch_assoc()) {
         $comentarios[] = [
             'id' => (int)$comment_row['id'],
+            'autor' => $comment_row['autor'],
             'comentario' => $comment_row['comentario'],
             'fecha_comentario' => $comment_row['fecha_comentario']
         ];
@@ -110,42 +112,37 @@ try {
         'fecha_creacion' => $ticket['fecha_creacion'],
         'fecha_actualizacion' => $ticket['fecha_actualizacion'],
         'asignado_a' => $ticket['asignado_a'],
-        'cotegoria_nombre' => $sticket['categoria_nombre'],
+        'categoria_nombre' => $ticket['categoria_nombre'],
         'categoria_descripcion' => $ticket['categoria_descripcion'],
-        'usuario' => [
-            'nombre' => $sticket['usuario_nombre'],
-            'email' => $ticket['usuario_email'],
-            'departamento' => $ticket['usuario_departamento']
-        ],
-
         'usuario' => [
             'nombre' => $ticket['usuario_nombre'],
             'email' => $ticket['usuario_email'],
-            'departamento' => $ticket['usuarios_departamento']
+            'departamento' => $ticket['usuario_departamento']
         ],
-        'comentario' => $comentarios,
+        'comentarios' => $comentarios,
         'total_comentarios' => count($comentarios)
     ];
 
-    $reated_stmt = $conn->prepare("
-    SELECT 
+    // Obtener tickets relacionados (del mismo usuario y categoría)
+    $related_stmt = $conn->prepare("
+        SELECT 
             t.id,
             t.titulo,
             t.estado,
             t.fecha_creacion
-    FORM tickets t
-    INNER JOIN usuarios u ON t.usuarios_id = u.id
-    WHERE u.email = ?
-    AND t.categoria_id = (
-        SELECT categoria_id FORM tickets WHERE id = ?
-    )
-    AND t.id != ?
-    OEDER BY t.fecha_creacion DESC
-    LIMIT 5
+        FROM tickets t
+        INNER JOIN usuarios u ON t.usuario_id = u.id
+        WHERE u.email = ?
+        AND t.categoria_id = (
+            SELECT categoria_id FROM tickets WHERE id = ?
+        )
+        AND t.id != ?
+        ORDER BY t.fecha_creacion DESC
+        LIMIT 5
     ");
-    $related_stmt->bind_param("sii,", $ticket['usuario_email'], $ticket_id, $ticket_id);
+    $related_stmt->bind_param("sii", $ticket['usuario_email'], $ticket_id, $ticket_id);
     $related_stmt->execute();
-    $replated_result = $related_stmt->get_result();
+    $related_result = $related_stmt->get_result();
 
     $tickets_relacionados = [];
     while ($related_row = $related_result->fetch_assoc()) {
@@ -159,15 +156,15 @@ try {
 
     $ticket_data['tickets_relacionados'] = $tickets_relacionados;
 
-    error_log("Detalles de ticket consultados - ID:$tickets_id");
+    error_log("Detalles de ticket consultados - ID: $ticket_id");
 
-    sendResponse(true,'Detalles del ticket obtenidos exitosamente', [
-        'tickets' => $ticket_data
+    sendResponse(true, 'Detalles del ticket obtenidos exitosamente', [
+        'ticket' => $ticket_data
     ]);
 
 } catch (Exception $e) {
-    error_log("Error al obtener detalles: " . $e->getMenssage());
-    sendResponse(false, 'Error interno del sevido');
+    error_log("Error al obtener detalles: " . $e->getMessage());
+    sendResponse(false, 'Error interno del servidor');
 } finally {
     if (isset($conn)) {
         $conn->close();

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de tickets-Soporte tecnico</title>
+    <title>Sistema de Tickets - Soporte Técnico</title>
     <link rel="stylesheet" href="style/style.css">
 </head>
 
@@ -14,10 +14,11 @@
             <h1>Sistema De Tickets De Soporte</h1>
             <p>Envíanos tu consulta y te ayudaremos lo antes posible</p>
         </header>
-        <!-- pestaña de navbegacion -->
+        
+        <!-- Pestañas de navegación -->
         <div class="tabs">
-            <button class="tab-button active" onclick="showTab('crear')"> Crear Ticket</button>
-            <button class="tab-button" onclick="showTab('consulta')"> Consultar Tickets</button>
+            <button class="tab-button active" onclick="showTab('crear')">Crear Ticket</button>
+            <button class="tab-button" onclick="showTab('consultar')">Consultar Tickets</button>
         </div>
 
         <!-- Formulario para crear ticket -->
@@ -31,7 +32,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="email">Correo Electronico *</label>
+                        <label for="email">Correo Electrónico *</label>
                         <input type="email" id="email" name="email" required>
                     </div>
 
@@ -41,7 +42,7 @@
                             <option value="">Seleccionar Departamento</option>
                             <option value="radio">Radio</option>
                             <option value="comercial">Comercial</option>
-                            <option value="redaccion">Redaccion</option>
+                            <option value="redaccion">Redacción</option>
                             <option value="impresos-comerciales">Impresos Comerciales</option>
                             <option value="financiero">Financiero</option>
                             <option value="cartera">Cartera</option>
@@ -51,10 +52,10 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="categorias">Categoría Del Problema *</label>
-                        <select name="categoria" id="categoria">
+                        <label for="categoria">Categoría Del Problema *</label>
+                        <select name="categoria" id="categoria" required>
                             <option value="">Seleccionar Categoría</option>
-                            <option value="1">Soporte Tecnico</option>
+                            <option value="1">Soporte Técnico</option>
                             <option value="2">Problemas Con Contapyme</option>
                             <option value="3">Problemas Con Ineditto</option>
                             <option value="4">Red e Internet</option>
@@ -67,22 +68,23 @@
                         <label for="prioridad">Prioridad *</label>
                         <select name="prioridad" id="prioridad" required>
                             <option value="baja">Baja</option>
-                            <option value="media">Media</option>
+                            <option value="media" selected>Media</option>
                             <option value="alta">Alta</option>
-                            <option value="critica">Critica</option>
+                            <option value="critica">Crítica</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="titulo">Titulo Del Problema *</label>
+                        <label for="titulo">Título Del Problema *</label>
                         <input type="text" id="titulo" name="titulo" placeholder="Resumen breve del problema" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="descripcion">Descripcion Detallada *</label>
+                        <label for="descripcion">Descripción Detallada *</label>
                         <textarea name="descripcion" id="descripcion" rows="6"
                             placeholder="Describe el problema con el mayor detalle posible..." required></textarea>
                     </div>
+                    
                     <button type="submit" class="submit-btn">
                         <span class="btn-text">Enviar Ticket</span>
                         <span class="btn-loading" style="display: none;">Enviando...</span>
@@ -90,28 +92,36 @@
                 </form>
             </div>
         </div>
+
+        <!-- Sección para consultar tickets -->
         <div id="consultar" class="tab-content">
             <div class="consulta-container">
                 <h2>Consultar Tickets</h2>
                 <div class="search-form">
-                    <input type="email" id="emailConsulta" placeholder="Ingresa tu correo electronico">
+                    <input type="email" id="emailConsulta" placeholder="Ingresa tu correo electrónico">
                     <button onclick="consultarTickets()" class="search-btn">Buscar Mis Tickets</button>
                 </div>
                 <div id="ticketsResults" class="tickets-container"></div>
             </div>
         </div>
+
+        <!-- Modal para mostrar detalles del ticket -->
         <div id="ticketModal" class="modal">
             <div class="modal-content">
                 <span class="close" onclick="closeModal()">&times;</span>
                 <div id="ticketDetails"></div>
             </div>
         </div>
+
+        <!-- Div para mostrar mensajes -->
         <div id="mensaje" class="mensaje"></div>
     </div>
+
     <footer>
         <p>&copy; 2024 Sistema de Tickets - Empresa. Todos los derechos reservados.</p>
     </footer>
-    <script src=""></script>
+
+    <script src="functions/js/index.js"></script>
 </body>
 
 </html>
