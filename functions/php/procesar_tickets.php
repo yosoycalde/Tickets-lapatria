@@ -1,5 +1,5 @@
 <?php
-require_once '../php/config.php';
+require_once 'config.php';
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
@@ -8,7 +8,12 @@ header('Access-Control-Allow-Headers: Content-Type');
 
 try {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        Utils::sendResponse(false, 'Método no permitido');
+        Utils::sendResponse(false, 'Método no permitido', null, 405);
+    }
+
+    // Verificar que los datos POST existan
+    if (empty($_POST)) {
+        Utils::sendResponse(false, 'No se recibieron datos');
     }
 
     $conn = DatabaseConfig::getDirectConnection();
@@ -23,6 +28,7 @@ try {
 
     $errors = [];
 
+    // Validaciones
     if (empty($nombre)) {
         $errors[] = 'El nombre es requerido';
     } elseif (strlen($nombre) > 100) {
@@ -65,10 +71,16 @@ try {
         Utils::sendResponse(false, implode(', ', $errors));
     }
 
+    // Iniciar transacción
     $conn->autocommit(false);
 
     try {
+        // Verificar o crear usuario
         $stmt_user_check = $conn->prepare("SELECT id FROM usuarios WHERE email = ?");
+        if (!$stmt_user_check) {
+            throw new Exception('Error en la consulta de usuario: ' . $conn->error);
+        }
+        
         $stmt_user_check->bind_param("s", $email);
         $stmt_user_check->execute();
         $result_user = $stmt_user_check->get_result();
@@ -77,17 +89,35 @@ try {
             $user_data = $result_user->fetch_assoc();
             $usuario_id = $user_data['id'];
 
+            // Actualizar usuario existente
             $stmt_user_update = $conn->prepare("UPDATE usuarios SET nombre = ?, departamento = ? WHERE id = ?");
+            if (!$stmt_user_update) {
+                throw new Exception('Error en la actualización de usuario: ' . $conn->error);
+            }
             $stmt_user_update->bind_param("ssi", $nombre, $departamento, $usuario_id);
-            $stmt_user_update->execute();
+            
+            if (!$stmt_user_update->execute()) {
+                throw new Exception('Error al actualizar usuario: ' . $stmt_user_update->error);
+            }
         } else {
+            // Crear nuevo usuario
             $stmt_user_insert = $conn->prepare("INSERT INTO usuarios (nombre, email, departamento) VALUES (?, ?, ?)");
+            if (!$stmt_user_insert) {
+                throw new Exception('Error en la inserción de usuario: ' . $conn->error);
+            }
             $stmt_user_insert->bind_param("sss", $nombre, $email, $departamento);
-            $stmt_user_insert->execute();
+            
+            if (!$stmt_user_insert->execute()) {
+                throw new Exception('Error al insertar usuario: ' . $stmt_user_insert->error);
+            }
             $usuario_id = $conn->insert_id;
         }
 
+        // Verificar que la categoría existe
         $stmt_cat_check = $conn->prepare("SELECT id FROM categorias WHERE id = ?");
+        if (!$stmt_cat_check) {
+            throw new Exception('Error en la consulta de categoría: ' . $conn->error);
+        }
         $stmt_cat_check->bind_param("i", $categoria_id);
         $stmt_cat_check->execute();
         $result_cat = $stmt_cat_check->get_result();
@@ -98,15 +128,23 @@ try {
 
         // Insertar el ticket
         $stmt_ticket = $conn->prepare("
-            INSERT INTO tickets (usuario_id, categoria_id, titulo, descripcion, prioridad, estado)
-            VALUES (?, ?, ?, ?, ?, 'Abierto')
+            INSERT INTO tickets (usuario_id, categoria_id, titulo, descripcion, prioridad, estado, fecha_creacion, fecha_actualizacion)
+            VALUES (?, ?, ?, ?, ?, 'Abierto', NOW(), NOW())
         ");
 
+        if (!$stmt_ticket) {
+            throw new Exception('Error en la inserción de ticket: ' . $conn->error);
+        }
+
         $stmt_ticket->bind_param("iisss", $usuario_id, $categoria_id, $titulo, $descripcion, $prioridad);
-        $stmt_ticket->execute();
+        
+        if (!$stmt_ticket->execute()) {
+            throw new Exception('Error al insertar ticket: ' . $stmt_ticket->error);
+        }
 
         $ticket_id = $conn->insert_id;
 
+        // Confirmar transacción
         $conn->commit();
 
         error_log("Ticket creado exitosamente - ID: $ticket_id, Usuario: $email");
@@ -118,15 +156,15 @@ try {
 
     } catch (Exception $e) {
         $conn->rollback();
-        error_log("Error al crear ticket: " . $e->getMessage());
-        Utils::sendResponse(false, 'Error interno del servidor');
+        error_log("Error en transacción: " . $e->getMessage());
+        Utils::sendResponse(false, 'Error al procesar el ticket: ' . $e->getMessage());
     }
+
 } catch (Exception $e) {
-    error_log("Error general: " . $e->getMessage());
-    Utils::sendResponse(false, 'Error de conexión a la base de datos: ' . $e->getMessage());
+    error_log("Error general en procesar_tickets.php: " . $e->getMessage());
+    Utils::sendResponse(false, 'Error de conexión a la base de datos. Verifica que la base de datos esté creada y las tablas existan.', null, 500);
 } finally {
-    if (isset($conn)) {
+    if (isset($conn) && $conn instanceof mysqli) {
         DatabaseConfig::getInstance()->closeConnection();
     }
 }
-?>

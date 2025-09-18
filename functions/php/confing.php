@@ -5,7 +5,7 @@ class DatabaseConfig {
     private const DB_PASSWORD = '';
     private const DB_NAME = 'sistema_tickets';
     private const DB_CHARSET = 'utf8mb4';
-    private const APP_NAME = 'Sistema de Tickets';
+    private const APP_NAME = 'Sistema_Tickets';
     private const APP_VERSION = '1.0.0';
     private const DEBUG_MODE = true;
 
