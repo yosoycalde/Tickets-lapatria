@@ -11,7 +11,6 @@ try {
         Utils::sendResponse(false, 'Método no permitido', null, 405);
     }
 
-    // Verificar que los datos POST existan
     if (empty($_POST)) {
         Utils::sendResponse(false, 'No se recibieron datos');
     }
@@ -126,7 +125,6 @@ try {
             throw new Exception('Categoría no válida');
         }
 
-        // Insertar el ticket
         $stmt_ticket = $conn->prepare("
             INSERT INTO tickets (usuario_id, categoria_id, titulo, descripcion, prioridad, estado, fecha_creacion, fecha_actualizacion)
             VALUES (?, ?, ?, ?, ?, 'Abierto', NOW(), NOW())
@@ -165,6 +163,6 @@ try {
     Utils::sendResponse(false, 'Error de conexión a la base de datos. Verifica que la base de datos esté creada y las tablas existan.', null, 500);
 } finally {
     if (isset($conn) && $conn instanceof mysqli) {
-        DatabaseConfig::getInstance()->closeConnection();
+        DatabaseConfig::getInstance();
     }
 }
