@@ -163,6 +163,6 @@ try {
     Utils::sendResponse(false, 'Error de conexión a la base de datos. Verifica que la base de datos esté creada y las tablas existan.', null, 500);
 } finally {
     if (isset($conn) && $conn instanceof mysqli) {
-        DatabaseConfig::getInstance();
+        DatabaseConfig::getInstance()->closeConnection();
     }
 }
