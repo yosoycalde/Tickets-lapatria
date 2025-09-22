@@ -84,8 +84,7 @@ try {
         if ($result_user->num_rows > 0) {
             $user_data = $result_user->fetch_assoc();
             $usuario_id = $user_data['id'];
-
-            // Actualizar usuario existente
+            
             $stmt_user_update = $conn->prepare("UPDATE usuarios SET nombre = ?, departamento = ? WHERE id = ?");
             if (!$stmt_user_update) {
                 throw new Exception('Error en la actualización de usuario: ' . $conn->error);
@@ -96,7 +95,6 @@ try {
                 throw new Exception('Error al actualizar usuario: ' . $stmt_user_update->error);
             }
         } else {
-            // Crear nuevo usuario
             $stmt_user_insert = $conn->prepare("INSERT INTO usuarios (nombre, email, departamento) VALUES (?, ?, ?)");
             if (!$stmt_user_insert) {
                 throw new Exception('Error en la inserción de usuario: ' . $conn->error);
