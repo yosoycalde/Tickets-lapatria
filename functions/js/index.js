@@ -2,6 +2,16 @@ document.addEventListener('DOMContentLoaded', function () {
     initializeApp();
 });
 
+// Mapeo de categorías a prioridades automáticas
+const categoriaPrioridad = {
+    '1': 'media',      // Soporte Técnico
+    '2': 'alta',       // Problemas Con Contapyme
+    '3': 'alta',       // Problemas Con Ineditto
+    '4': 'critica',    // Red e Internet
+    '5': 'media',      // Computador
+    '6': 'baja'        // Otro
+};
+
 function initializeApp() {
     const form = document.getElementById('ticketForm');
     if (form) {
@@ -11,6 +21,50 @@ function initializeApp() {
     document.querySelectorAll('.tab-button').forEach(button => {
         button.addEventListener('click', clearMessages);
     });
+
+    // Inicializar automatización de prioridad
+    initializePriorityAutomation();
+}
+
+function initializePriorityAutomation() {
+    const categoriaSelect = document.getElementById('categoria');
+
+    if (categoriaSelect) {
+        categoriaSelect.addEventListener('change', function () {
+            const categoriaSeleccionada = this.value;
+
+            if (categoriaSeleccionada) {
+                setPrioridadAutomatica(categoriaSeleccionada);
+            }
+        });
+    }
+}
+
+// Función para establecer prioridad automáticamente
+function setPrioridadAutomatica(categoriaId) {
+    const prioridadSelect = document.getElementById('prioridad');
+    const nuevaPrioridad = categoriaPrioridad[categoriaId];
+
+    if (nuevaPrioridad && prioridadSelect) {
+        prioridadSelect.value = nuevaPrioridad;
+
+        // Mostrar feedback visual
+        const prioridadGroup = prioridadSelect.closest('.form-group');
+        if (prioridadGroup) {
+            prioridadGroup.style.transform = 'scale(1.02)';
+            prioridadGroup.style.transition = 'transform 0.2s ease';
+
+            setTimeout(() => {
+                prioridadGroup.style.transform = 'scale(1)';
+            }, 200);
+        }
+
+        // Mensaje informativo breve
+        showMessage(`Prioridad establecida como "${nuevaPrioridad.toUpperCase()}" según la categoría.`, 'info');
+        setTimeout(() => {
+            hideMessage();
+        }, 2500);
+    }
 }
 
 function showTab(tabName) {
@@ -409,9 +463,15 @@ document.addEventListener('DOMContentLoaded', function () {
             const savedValue = localStorage.getItem(`ticket_${input.name}`);
             if (savedValue && input.type !== 'submit') {
                 input.value = savedValue;
+
+                if (input.name === 'categoria' && savedValue) {
+                    setTimeout(() => {
+                        setPrioridadAutomatica(savedValue);
+                    }, 100);
+                }
             }
 
-            input.addEventListener('input', function(){
+            input.addEventListener('input', function () {
                 if (this.type !== 'submit') {
                     localStorage.setItem(`ticket_${this.name}`, this.value);
                 }
@@ -433,13 +493,13 @@ function clearAutoSave() {
 }
 
 // Manejo global de errores
-window.addEventListener('error', function(event){
+window.addEventListener('error', function (event) {
     console.error('Error global:', event.error);
     showMessage('Ha ocurrido un error inesperado. Por favor, recarga la página e intenta nuevamente.', 'error');
 });
 
 // Atajos de teclado
-document.addEventListener('keydown', function(event) {
+document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') {
         closeModal();
     }
