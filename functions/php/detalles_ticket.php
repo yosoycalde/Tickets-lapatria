@@ -19,7 +19,6 @@ try {
 
     $conn = DatabaseConfig::getDirectConnection();
 
-    // Obtener información del ticket
     $stmt = $conn->prepare("
         SELECT
             t.id,
