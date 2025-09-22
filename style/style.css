@@ -403,7 +403,6 @@ footer {
     font-size: 14px;
 }
 
-/* Estilos para loading */
 .btn-loading {
     display: inline-block;
 }
@@ -426,7 +425,6 @@ footer {
     }
 }
 
-/* Estilos adicionales para el modal */
 .ticket-details {
     padding: 20px;
 }

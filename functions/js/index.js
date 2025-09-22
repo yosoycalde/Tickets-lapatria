@@ -2,14 +2,13 @@ document.addEventListener('DOMContentLoaded', function () {
     initializeApp();
 });
 
-// Mapeo de categorías a prioridades automáticas
 const categoriaPrioridad = {
-    '1': 'media',      // Soporte Técnico
-    '2': 'alta',       // Problemas Con Contapyme
-    '3': 'alta',       // Problemas Con Ineditto
-    '4': 'critica',    // Red e Internet
-    '5': 'media',      // Computador
-    '6': 'baja'        // Otro
+    '1': 'media',   
+    '2': 'alta',    
+    '3': 'alta',    
+    '4': 'critica', 
+    '5': 'media',   
+    '6': 'baja'     
 };
 
 function initializeApp() {
@@ -22,7 +21,6 @@ function initializeApp() {
         button.addEventListener('click', clearMessages);
     });
 
-    // Inicializar automatización de prioridad
     initializePriorityAutomation();
 }
 
@@ -40,7 +38,6 @@ function initializePriorityAutomation() {
     }
 }
 
-// Función para establecer prioridad automáticamente
 function setPrioridadAutomatica(categoriaId) {
     const prioridadSelect = document.getElementById('prioridad');
     const nuevaPrioridad = categoriaPrioridad[categoriaId];
@@ -48,7 +45,6 @@ function setPrioridadAutomatica(categoriaId) {
     if (nuevaPrioridad && prioridadSelect) {
         prioridadSelect.value = nuevaPrioridad;
 
-        // Mostrar feedback visual
         const prioridadGroup = prioridadSelect.closest('.form-group');
         if (prioridadGroup) {
             prioridadGroup.style.transform = 'scale(1.02)';
@@ -59,7 +55,6 @@ function setPrioridadAutomatica(categoriaId) {
             }, 200);
         }
 
-        // Mensaje informativo breve
         showMessage(`Prioridad establecida como "${nuevaPrioridad.toUpperCase()}" según la categoría.`, 'info');
         setTimeout(() => {
             hideMessage();
@@ -410,7 +405,6 @@ function formatDate(dateString) {
     }
 }
 
-// Validación en tiempo real para email
 document.addEventListener('DOMContentLoaded', function () {
     const emailInput = document.getElementById('email');
     if (emailInput) {
@@ -424,7 +418,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Contador de caracteres para descripción
     const descripcionInput = document.getElementById('descripcion');
     if (descripcionInput) {
         const maxLength = 2000;
@@ -454,7 +447,6 @@ document.addEventListener('DOMContentLoaded', function () {
         updateCounter();
     }
 
-    // Auto-guardado del formulario
     const form = document.getElementById('ticketForm');
     if (form) {
         const inputs = form.querySelectorAll('input, select, textarea');
@@ -492,13 +484,11 @@ function clearAutoSave() {
     }
 }
 
-// Manejo global de errores
 window.addEventListener('error', function (event) {
     console.error('Error global:', event.error);
     showMessage('Ha ocurrido un error inesperado. Por favor, recarga la página e intenta nuevamente.', 'error');
 });
 
-// Atajos de teclado
 document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') {
         closeModal();

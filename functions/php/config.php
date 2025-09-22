@@ -60,7 +60,6 @@ class DatabaseConfig {
         return self::DEBUG_MODE;
     }
 
-    // Método estático para obtener conexión directa
     public static function getDirectConnection() {
         $instance = self::getInstance();
         return $instance->getConnection();
@@ -101,7 +100,6 @@ class Utils {
     }
 }
 
-// Configuración de errores según modo debug
 if (DatabaseConfig::isDebugMode()) {
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
@@ -112,7 +110,6 @@ if (DatabaseConfig::isDebugMode()) {
     ini_set('log_errors', 1);
 }
 
-// Headers de seguridad
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
 header('X-XSS-Protection: 1; mode=block');

@@ -27,7 +27,6 @@ try {
 
     $errors = [];
 
-    // Validaciones
     if (empty($nombre)) {
         $errors[] = 'El nombre es requerido';
     } elseif (strlen($nombre) > 100) {
@@ -70,11 +69,9 @@ try {
         Utils::sendResponse(false, implode(', ', $errors));
     }
 
-    // Iniciar transacción
     $conn->autocommit(false);
 
     try {
-        // Verificar o crear usuario
         $stmt_user_check = $conn->prepare("SELECT id FROM usuarios WHERE email = ?");
         if (!$stmt_user_check) {
             throw new Exception('Error en la consulta de usuario: ' . $conn->error);
@@ -112,7 +109,6 @@ try {
             $usuario_id = $conn->insert_id;
         }
 
-        // Verificar que la categoría existe
         $stmt_cat_check = $conn->prepare("SELECT id FROM categorias WHERE id = ?");
         if (!$stmt_cat_check) {
             throw new Exception('Error en la consulta de categoría: ' . $conn->error);
@@ -142,7 +138,6 @@ try {
 
         $ticket_id = $conn->insert_id;
 
-        // Confirmar transacción
         $conn->commit();
 
         error_log("Ticket creado exitosamente - ID: $ticket_id, Usuario: $email");
