@@ -46,7 +46,7 @@ class DatabaseConfig {
             }
         }
 
-        return $this->connection;
+        return $this->connection;   
     }
 
     public function closeConnection() {
