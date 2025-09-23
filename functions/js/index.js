@@ -2,13 +2,14 @@ document.addEventListener('DOMContentLoaded', function () {
     initializeApp();
 });
 
+// Mapeo mejorado de categorías a prioridades según el tipo de problema
 const categoriaPrioridad = {
-    '1': 'media',   
-    '2': 'alta',    
-    '3': 'alta',    
-    '4': 'critica', 
-    '5': 'media',   
-    '6': 'baja'     
+    '1': 'media',   // Soporte Técnico - problema general
+    '2': 'critica', // Problemas con Contapyme - sistema crítico de negocio
+    '3': 'critica', // Problemas con Ineditto - sistema crítico de negocio  
+    '4': 'alta',    // Red e Internet - afecta productividad
+    '5': 'media',   // Computador - problema de equipo individual
+    '6': 'baja'     // Otro - problema no especificado
 };
 
 function initializeApp() {
@@ -26,13 +27,25 @@ function initializeApp() {
 
 function initializePriorityAutomation() {
     const categoriaSelect = document.getElementById('categoria');
+    const prioridadSelect = document.getElementById('prioridad');
 
-    if (categoriaSelect) {
+    if (categoriaSelect && prioridadSelect) {
+        // Deshabilitar el campo de prioridad para que sea automático
+        prioridadSelect.disabled = true;
+        prioridadSelect.style.opacity = '0.7';
+        prioridadSelect.style.cursor = 'not-allowed';
+        
+        // Agregar tooltip explicativo
+        prioridadSelect.title = 'La prioridad se asigna automáticamente según la categoría seleccionada';
+
         categoriaSelect.addEventListener('change', function () {
             const categoriaSeleccionada = this.value;
 
             if (categoriaSeleccionada) {
                 setPrioridadAutomatica(categoriaSeleccionada);
+            } else {
+                // Si no hay categoría seleccionada, resetear prioridad
+                prioridadSelect.value = 'media';
             }
         });
     }
@@ -45,6 +58,7 @@ function setPrioridadAutomatica(categoriaId) {
     if (nuevaPrioridad && prioridadSelect) {
         prioridadSelect.value = nuevaPrioridad;
 
+        // Efecto visual para mostrar el cambio
         const prioridadGroup = prioridadSelect.closest('.form-group');
         if (prioridadGroup) {
             prioridadGroup.style.transform = 'scale(1.02)';
@@ -55,11 +69,25 @@ function setPrioridadAutomatica(categoriaId) {
             }, 200);
         }
 
-        showMessage(`Prioridad establecida como "${nuevaPrioridad.toUpperCase()}" según la categoría.`, 'info');
+        // Mensaje informativo sobre la asignación automática
+        const categoriaName = getCategoryName(categoriaId);
+        showMessage(`Prioridad establecida como "${nuevaPrioridad.toUpperCase()}" para problemas de ${categoriaName}.`, 'info');
         setTimeout(() => {
             hideMessage();
-        }, 2500);
+        }, 3000);
     }
+}
+
+function getCategoryName(categoriaId) {
+    const categorias = {
+        '1': 'Soporte Técnico',
+        '2': 'Contapyme',
+        '3': 'Ineditto', 
+        '4': 'Red e Internet',
+        '5': 'Computador',
+        '6': 'Otros'
+    };
+    return categorias[categoriaId] || 'Desconocida';
 }
 
 function showTab(tabName) {
@@ -107,6 +135,12 @@ async function handleSubmit(event) {
             showMessage('¡Ticket creado exitosamente! ID: ' + result.ticket_id, 'success');
             document.getElementById('ticketForm').reset();
             clearAutoSave();
+            
+            // Resetear el campo de prioridad después del reset del formulario
+            const prioridadSelect = document.getElementById('prioridad');
+            if (prioridadSelect) {
+                prioridadSelect.value = 'media';
+            }
 
             setTimeout(() => {
                 showMessage('Recibirás una confirmación por correo electrónico. Puedes consultar el estado de tu ticket en la pestaña "Consultar Tickets".', 'info');

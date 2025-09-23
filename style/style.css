@@ -143,6 +143,50 @@ header p {
     transform: translateY(-2px);
 }
 
+/* Estilos específicos para el campo de prioridad no editable */
+.priority-display {
+    position: relative;
+}
+
+.priority-readonly {
+    background: #edf2f7 !important;
+    color: #4a5568 !important;
+    cursor: not-allowed !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 2px solid #cbd5e0 !important;
+}
+
+.priority-readonly:focus {
+    border-color: #cbd5e0 !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.priority-help {
+    display: block;
+    margin-top: 5px;
+    color: #718096;
+    font-size: 12px;
+    font-style: italic;
+}
+
+/* Indicador visual de campo automático */
+.priority-display::after {
+    content: "🔒 Automático";
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: #718096;
+    background: #edf2f7;
+    padding: 2px 6px;
+    border-radius: 4px;
+    pointer-events: none;
+}
+
 .form-group textarea {
     resize: vertical;
     min-height: 120px;
@@ -589,6 +633,13 @@ footer {
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
+    }
+
+    .priority-display::after {
+        position: static;
+        display: block;
+        margin-top: 5px;
+        text-align: right;
     }
 }
 

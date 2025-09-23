@@ -64,13 +64,11 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="prioridad">Prioridad *</label>
-                        <select name="prioridad" id="prioridad" required>
-                            <option value="baja">Baja</option>
-                            <option value="media" selected>Media</option>
-                            <option value="alta">Alta</option>
-                            <option value="critica">Crítica</option>
-                        </select>
+                        <label for="prioridad">Prioridad (Asignada automáticamente) *</label>
+                        <div class="priority-display">
+                            <input type="text" id="prioridad" name="prioridad" value="Media" readonly class="priority-readonly">
+                            <small class="priority-help">La prioridad se asigna automáticamente según la categoría seleccionada</small>
+                        </div>
                     </div>
 
                     <div class="form-group">
