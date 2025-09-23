@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Tickets - Soporte Técnico</title>
     <link rel="stylesheet" href="style/style.css">
+    <link rel="icon" href="resources/icon/buscar-billete.png">
 </head>
 
 <body>
@@ -35,7 +36,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="departamento">Departamento</label>
+                        <label for="departamento">Departamento *</label>
                         <select id="departamento" name="departamento">
                             <option value="">Seleccionar Departamento</option>
                             <option value="radio">Radio</option>
@@ -82,7 +83,7 @@
                         <textarea name="descripcion" id="descripcion" rows="6"
                             placeholder="Describe el problema con el mayor detalle posible..." required></textarea>
                     </div>
-                    
+
                     <button type="submit" class="submit-btn">
                         <span class="btn-text">Enviar Ticket</span>
                         <span class="btn-loading" style="display: none;">Enviando...</span>
