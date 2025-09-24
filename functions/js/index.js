@@ -129,7 +129,7 @@ async function handleSubmit(event) {
             showMessage('¡Ticket creado exitosamente! ID: ' + result.ticket_id, 'success');
             document.getElementById('ticketForm').reset();
             clearAutoSave();
-            
+
             const prioridadSelect = document.getElementById('prioridad');
             if (prioridadSelect) {
                 prioridadSelect.value = 'media';
