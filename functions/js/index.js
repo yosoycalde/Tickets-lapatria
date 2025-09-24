@@ -76,7 +76,7 @@ function getCategoryName(categoriaId) {
     const categorias = {
         '1': 'Soporte Técnico',
         '2': 'Contapyme',
-        '3': 'Ineditto', 
+        '3': 'Ineditto',
         '4': 'Red e Internet',
         '5': 'Computador',
         '6': 'Otros'
