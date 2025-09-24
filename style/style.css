@@ -578,7 +578,9 @@ footer {
     line-height: 1.6;
 }
 
-.no-tickets, .loading, .error {
+.no-tickets,
+.loading,
+.error {
     text-align: center;
     padding: 40px;
     color: #718096;
@@ -589,7 +591,6 @@ footer {
     color: #c53030;
 }
 
-/* Responsive design */
 @media (max-width: 768px) {
     .container {
         padding: 10px;

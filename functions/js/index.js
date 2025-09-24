@@ -3,12 +3,12 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 const categoriaPrioridad = {
-    '1': 'media',   
-    '2': 'critica', 
-    '3': 'critica', 
-    '4': 'alta',    
-    '5': 'media',   
-    '6': 'baja'     
+    '1': 'media',
+    '2': 'critica',
+    '3': 'critica',
+    '4': 'alta',
+    '5': 'media',
+    '6': 'baja'
 };
 
 function initializeApp() {
@@ -32,7 +32,7 @@ function initializePriorityAutomation() {
         prioridadSelect.disabled = true;
         prioridadSelect.style.opacity = '0.7';
         prioridadSelect.style.cursor = 'not-allowed';
-        
+
         prioridadSelect.title = 'La prioridad se asigna automáticamente según la categoría seleccionada';
 
         categoriaSelect.addEventListener('change', function () {
