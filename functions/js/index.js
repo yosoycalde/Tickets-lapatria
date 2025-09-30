@@ -452,7 +452,7 @@ document.addEventListener('DOMContentLoaded', function () {
         counter.className = 'char-counter';
         counter.style.textAlign = 'right';
         counter.style.fontSize = '12px';
-        counter.style.color = '#718096';
+        counter.style.color = '#2a2f36ff';
         counter.style.marginTop = '5px';
 
         descripcionInput.parentNode.appendChild(counter);
@@ -462,11 +462,11 @@ document.addEventListener('DOMContentLoaded', function () {
             counter.textContent = `${remaining} caracteres restantes`;
 
             if (remaining < 100) {
-                counter.style.color = '#e53e3e';
+                counter.style.color = '#c21111ff';
             } else if (remaining < 300) {
-                counter.style.color = '#d69e2e';
+                counter.style.color = '#ffaa00ff';
             } else {
-                counter.style.color = '#718096';
+                counter.style.color = '#8b9fbdff';
             }
         }
 
