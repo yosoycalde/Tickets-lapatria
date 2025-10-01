@@ -84,6 +84,23 @@
                             placeholder="Describe el problema con el mayor detalle posible..." required></textarea>
                     </div>
 
+                    <div class="form-group">
+                        <label for="imagen">Adjuntar Imagen (Opcional)</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="imagen" name="imagen" accept="image/*" class="file-input">
+                            <label for="imagen" class="file-input-display">
+                                <span class="file-icon">📎</span>
+                                <span class="file-text">Seleccionar imagen del error</span>
+                                <span class="file-name"></span>
+                            </label>
+                            <div class="file-preview" style="display: none;">
+                                <img id="imagePreview" src="" alt="Vista previa">
+                                <button type="button" class="remove-image" onclick="removeImage()">×</button>
+                            </div>
+                        </div>
+                        <small class="file-help">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 5MB</small>
+                    </div>
+
                     <button type="submit" class="submit-btn">
                         <span class="btn-text">Enviar Ticket</span>
                         <span class="btn-loading" style="display: none;">Enviando...</span>

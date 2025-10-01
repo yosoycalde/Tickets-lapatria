@@ -45,7 +45,7 @@ try {
         $errors[] = 'El departamento no puede exceder 100 caracteres';
     }
 
-    if (!$categoria_id || $categoria_id < 1 || $categoria_id > 6) {
+    if (!$categoria_id || $categoria_id < 1 || $categoria_id > 7) {
         $errors[] = 'Debe seleccionar una categoría válida';
     }
 
@@ -63,6 +63,49 @@ try {
         $errors[] = 'La descripción es requerida';
     } elseif (strlen($descripcion) > 2000) {
         $errors[] = 'La descripción no puede exceder 2000 caracteres';
+    }
+
+    // Procesar imagen si existe
+    $imagen_url = null;
+    if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] !== UPLOAD_ERR_NO_FILE) {
+        if ($_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
+            $allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+            $file_type = $_FILES['imagen']['type'];
+            $file_size = $_FILES['imagen']['size'];
+            $max_size = 5 * 1024 * 1024; // 5MB
+
+            if (!in_array($file_type, $allowed_types)) {
+                $errors[] = 'El archivo debe ser una imagen válida (JPG, PNG o GIF)';
+            }
+
+            if ($file_size > $max_size) {
+                $errors[] = 'La imagen no puede superar los 5MB';
+            }
+
+            if (empty($errors)) {
+                // Crear directorio de uploads si no existe
+                $upload_dir = '../../../uploads/tickets/';
+                if (!file_exists($upload_dir)) {
+                    mkdir($upload_dir, 0777, true);
+                }
+
+                // Generar nombre único para el archivo
+                $file_extension = pathinfo($_FILES['imagen']['name'], PATHINFO_EXTENSION);
+                $unique_name = uniqid('ticket_', true) . '.' . $file_extension;
+                $upload_path = $upload_dir . $unique_name;
+
+                if (move_uploaded_file($_FILES['imagen']['tmp_name'], $upload_path)) {
+                    $imagen_url = 'uploads/tickets/' . $unique_name;
+                    error_log("Imagen guardada: $imagen_url");
+                } else {
+                    $errors[] = 'Error al guardar la imagen';
+                    error_log("Error al mover archivo a: $upload_path");
+                }
+            }
+        } elseif ($_FILES['imagen']['error'] !== UPLOAD_ERR_NO_FILE) {
+            $errors[] = 'Error al subir la imagen';
+            error_log("Error en upload de imagen: " . $_FILES['imagen']['error']);
+        }
     }
 
     if (!empty($errors)) {
@@ -119,16 +162,30 @@ try {
             throw new Exception('Categoría no válida');
         }
 
-        $stmt_ticket = $conn->prepare("
-            INSERT INTO tickets (usuario_id, categoria_id, titulo, descripcion, prioridad, estado, fecha_creacion, fecha_actualizacion)
-            VALUES (?, ?, ?, ?, ?, 'Abierto', NOW(), NOW())
-        ");
+        // Insertar ticket con o sin imagen
+        if ($imagen_url) {
+            $stmt_ticket = $conn->prepare("
+                INSERT INTO tickets (usuario_id, categoria_id, titulo, descripcion, prioridad, estado, imagen_url, fecha_creacion, fecha_actualizacion)
+                VALUES (?, ?, ?, ?, ?, 'Abierto', ?, NOW(), NOW())
+            ");
 
-        if (!$stmt_ticket) {
-            throw new Exception('Error en la inserción de ticket: ' . $conn->error);
+            if (!$stmt_ticket) {
+                throw new Exception('Error en la inserción de ticket: ' . $conn->error);
+            }
+
+            $stmt_ticket->bind_param("iissss", $usuario_id, $categoria_id, $titulo, $descripcion, $prioridad, $imagen_url);
+        } else {
+            $stmt_ticket = $conn->prepare("
+                INSERT INTO tickets (usuario_id, categoria_id, titulo, descripcion, prioridad, estado, fecha_creacion, fecha_actualizacion)
+                VALUES (?, ?, ?, ?, ?, 'Abierto', NOW(), NOW())
+            ");
+
+            if (!$stmt_ticket) {
+                throw new Exception('Error en la inserción de ticket: ' . $conn->error);
+            }
+
+            $stmt_ticket->bind_param("iisss", $usuario_id, $categoria_id, $titulo, $descripcion, $prioridad);
         }
-
-        $stmt_ticket->bind_param("iisss", $usuario_id, $categoria_id, $titulo, $descripcion, $prioridad);
         
         if (!$stmt_ticket->execute()) {
             throw new Exception('Error al insertar ticket: ' . $stmt_ticket->error);
@@ -138,15 +195,22 @@ try {
 
         $conn->commit();
 
-        error_log("Ticket creado exitosamente - ID: $ticket_id, Usuario: $email");
+        error_log("Ticket creado exitosamente - ID: $ticket_id, Usuario: $email" . ($imagen_url ? ", Con imagen: $imagen_url" : ""));
 
         Utils::sendResponse(true, 'Ticket creado exitosamente', [
             'ticket_id' => $ticket_id,
-            'usuario_id' => $usuario_id
+            'usuario_id' => $usuario_id,
+            'imagen_url' => $imagen_url
         ]);
 
     } catch (Exception $e) {
         $conn->rollback();
+        
+        // Eliminar imagen si hubo error en la transacción
+        if ($imagen_url && file_exists('../../../' . $imagen_url)) {
+            unlink('../../../' . $imagen_url);
+        }
+        
         error_log("Error en transacción: " . $e->getMessage());
         Utils::sendResponse(false, 'Error al procesar el ticket: ' . $e->getMessage());
     }

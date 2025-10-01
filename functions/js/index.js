@@ -23,6 +23,7 @@ function initializeApp() {
     });
 
     initializePriorityAutomation();
+    handleImagePreview();
 }
 
 function initializePriorityAutomation() {
@@ -85,6 +86,71 @@ function getCategoryName(categoriaId) {
     return categorias[categoriaId] || 'Desconocida';
 }
 
+// Función para manejar la vista previa de la imagen
+function handleImagePreview() {
+    const imageInput = document.getElementById('imagen');
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const fileNameSpan = document.querySelector('.file-name');
+            const filePreview = document.querySelector('.file-preview');
+            const imagePreview = document.getElementById('imagePreview');
+            const wrapper = document.querySelector('.file-input-wrapper');
+
+            if (file) {
+                // Validar tipo de archivo
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+                if (!validTypes.includes(file.type)) {
+                    showMessage('Por favor selecciona una imagen válida (JPG, PNG o GIF)', 'error');
+                    imageInput.value = '';
+                    return;
+                }
+
+                // Validar tamaño (5MB máximo)
+                const maxSize = 5 * 1024 * 1024; // 5MB en bytes
+                if (file.size > maxSize) {
+                    showMessage('La imagen no puede superar los 5MB', 'error');
+                    imageInput.value = '';
+                    return;
+                }
+
+                // Mostrar nombre del archivo
+                fileNameSpan.textContent = file.name;
+                wrapper.classList.add('has-file');
+
+                // Crear vista previa
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    filePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+
+                showMessage('Imagen cargada correctamente', 'success');
+            }
+        });
+    }
+}
+
+// Función para eliminar la imagen seleccionada
+function removeImage() {
+    const imageInput = document.getElementById('imagen');
+    const fileNameSpan = document.querySelector('.file-name');
+    const filePreview = document.querySelector('.file-preview');
+    const imagePreview = document.getElementById('imagePreview');
+    const wrapper = document.querySelector('.file-input-wrapper');
+
+    if (imageInput) {
+        imageInput.value = '';
+        fileNameSpan.textContent = '';
+        imagePreview.src = '';
+        filePreview.style.display = 'none';
+        wrapper.classList.remove('has-file');
+        
+        showMessage('Imagen eliminada', 'info');
+    }
+}
+
 function showTab(tabName) {
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('active');
@@ -129,6 +195,7 @@ async function handleSubmit(event) {
         if (result.success) {
             showMessage('¡Ticket creado exitosamente! ID: ' + result.ticket_id, 'success');
             document.getElementById('ticketForm').reset();
+            removeImage();
             clearAutoSave();
 
             const prioridadSelect = document.getElementById('prioridad');
@@ -171,6 +238,20 @@ function validateForm(formData) {
 
     if (formData.get('descripcion') && formData.get('descripcion').length > 2000) {
         errors.push('La descripción no puede exceder 2000 caracteres');
+    }
+
+    // Validar imagen si existe
+    const imagen = formData.get('imagen');
+    if (imagen && imagen.size > 0) {
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+        if (!validTypes.includes(imagen.type)) {
+            errors.push('El archivo debe ser una imagen válida (JPG, PNG o GIF)');
+        }
+        
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (imagen.size > maxSize) {
+            errors.push('La imagen no puede superar los 5MB');
+        }
     }
 
     if (errors.length > 0) {
@@ -325,6 +406,15 @@ function displayTicketModal(ticket) {
                 <div class="description-box">${escapeHtml(ticket.descripcion).replace(/\n/g, '<br>')}</div>
             </div>
             
+            ${ticket.imagen_url ? `
+            <div class="info-item full-width">
+                <strong>Imagen adjunta:</strong>
+                <div class="ticket-image-container">
+                    <img src="${ticket.imagen_url}" alt="Imagen del ticket" class="ticket-image" onclick="window.open('${ticket.imagen_url}', '_blank')">
+                </div>
+            </div>
+            ` : ''}
+            
             ${ticket.comentarios && ticket.comentarios.length > 0 ? `
             <div class="comentarios-section">
                 <h3>Comentarios y Respuestas:</h3>
@@ -477,7 +567,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const form = document.getElementById('ticketForm');
     if (form) {
-        const inputs = form.querySelectorAll('input, select, textarea');
+        const inputs = form.querySelectorAll('input:not([type="file"]), select, textarea');
 
         inputs.forEach(input => {
             const savedValue = localStorage.getItem(`ticket_${input.name}`);

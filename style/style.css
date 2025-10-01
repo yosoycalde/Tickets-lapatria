@@ -192,6 +192,111 @@ header p {
     min-height: 120px;
 }
 
+/* Estilos para el campo de subida de imágenes */
+.file-input-wrapper {
+    position: relative;
+    margin-top: 8px;
+}
+
+.file-input {
+    position: absolute;
+    opacity: 0;
+    width: 0.1px;
+    height: 0.1px;
+    pointer-events: none;
+}
+
+.file-input-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    border: 2px dashed #cbd5e0;
+    border-radius: 10px;
+    background: #f7fafc;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.file-input-display:hover {
+    border-color: #667eea;
+    background: #edf2f7;
+}
+
+.file-input:focus + .file-input-display {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.file-icon {
+    font-size: 24px;
+}
+
+.file-text {
+    color: #4a5568;
+    font-weight: 500;
+    flex: 1;
+}
+
+.file-name {
+    color: #667eea;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.file-help {
+    display: block;
+    margin-top: 5px;
+    color: #718096;
+    font-size: 12px;
+    font-style: italic;
+}
+
+.file-preview {
+    position: relative;
+    margin-top: 15px;
+    border-radius: 10px;
+    overflow: hidden;
+    max-width: 400px;
+}
+
+.file-preview img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 10px;
+    border: 2px solid #e2e8f0;
+}
+
+.remove-image {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    background: #e53e3e;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.remove-image:hover {
+    background: #c53030;
+    transform: scale(1.1);
+}
+
+.file-input-wrapper.has-file .file-input-display {
+    border-color: #48bb78;
+    background: #f0fff4;
+}
+
 .submit-btn {
     width: 100%;
     padding: 18px;
@@ -642,6 +747,10 @@ footer {
         margin-top: 5px;
         text-align: right;
     }
+
+    .file-preview {
+        max-width: 100%;
+    }
 }
 
 html {
@@ -666,4 +775,28 @@ html {
 
 .ticket-card:hover::before {
     left: 100%;
+}
+
+/* Estilos para la imagen del ticket en el modal */
+.ticket-image-container {
+    margin-top: 10px;
+    text-align: center;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.ticket-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.ticket-image:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }

@@ -29,6 +29,7 @@ try {
             t.fecha_creacion,
             t.fecha_actualizacion,
             t.asignado_a,
+            t.imagen_url,
             c.nombre as categoria_nombre,
             c.descripcion as categoria_descripcion,
             u.nombre as usuario_nombre,
@@ -83,6 +84,7 @@ try {
         'fecha_creacion' => $ticket['fecha_creacion'],
         'fecha_actualizacion' => $ticket['fecha_actualizacion'],
         'asignado_a' => $ticket['asignado_a'],
+        'imagen_url' => $ticket['imagen_url'],
         'categoria_nombre' => $ticket['categoria_nombre'],
         'categoria_descripcion' => $ticket['categoria_descripcion'],
         'usuario' => [
