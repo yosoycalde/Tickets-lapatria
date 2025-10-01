@@ -4,10 +4,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
 const categoriaPrioridad = {
     '1': 'media',
-    '2': 'critica',
-    '3': 'critica',
+    '2': 'media',
+    '3': 'alta',
     '4': 'alta',
-    '5': 'media',
+    '5': 'baja',
     '6': 'baja'
 };
 
