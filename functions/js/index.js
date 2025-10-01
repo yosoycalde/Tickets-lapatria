@@ -8,7 +8,8 @@ const categoriaPrioridad = {
     '3': 'alta',
     '4': 'alta',
     '5': 'baja',
-    '6': 'baja'
+    '6': 'media',
+    '7': 'baja'
 };
 
 function initializeApp() {
