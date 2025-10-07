@@ -83,13 +83,11 @@ try {
             }
 
             if (empty($errors)) {
-                // Crear directorio de uploads si no existe
                 $upload_dir = '../../../uploads/tickets/';
                 if (!file_exists($upload_dir)) {
                     mkdir($upload_dir, 0777, true);
                 }
 
-                // Generar nombre único para el archivo
                 $file_extension = pathinfo($_FILES['imagen']['name'], PATHINFO_EXTENSION);
                 $unique_name = uniqid('ticket_', true) . '.' . $file_extension;
                 $upload_path = $upload_dir . $unique_name;
@@ -162,7 +160,6 @@ try {
             throw new Exception('Categoría no válida');
         }
 
-        // Insertar ticket con o sin imagen
         if ($imagen_url) {
             $stmt_ticket = $conn->prepare("
                 INSERT INTO tickets (usuario_id, categoria_id, titulo, descripcion, prioridad, estado, imagen_url, fecha_creacion, fecha_actualizacion)
@@ -205,8 +202,7 @@ try {
 
     } catch (Exception $e) {
         $conn->rollback();
-        
-        // Eliminar imagen si hubo error en la transacción
+
         if ($imagen_url && file_exists('../../../' . $imagen_url)) {
             unlink('../../../' . $imagen_url);
         }

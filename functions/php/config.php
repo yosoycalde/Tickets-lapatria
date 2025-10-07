@@ -1,7 +1,4 @@
 <?php
-// functions/php/config.php - Versión corregida con mejor manejo de errores
-
-// Iniciar sesión si no está iniciada
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -31,7 +28,6 @@ class DatabaseConfig {
     public function getConnection() {
         if ($this->connection === null) {
             try {
-                // Intentar conexión con manejo de errores mejorado
                 $this->connection = @new mysqli(
                     self::DB_HOST,
                     self::DB_USERNAME,
@@ -45,7 +41,6 @@ class DatabaseConfig {
                     throw new Exception($error_msg);
                 }
 
-                // Establecer charset
                 if (!$this->connection->set_charset(self::DB_CHARSET)) {
                     error_log("Error al establecer charset: " . $this->connection->error);
                 }
@@ -95,7 +90,6 @@ class Utils {
     }
 
     public static function sendResponse($success, $message, $data = null, $httpCode = 200) {
-        // Limpiar cualquier salida previa
         if (ob_get_length()) ob_clean();
         
         http_response_code($httpCode);
@@ -128,7 +122,6 @@ class Utils {
     }
 }
 
-// Configuración de errores según el modo
 if (DatabaseConfig::isDebugMode()) {
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
@@ -141,12 +134,10 @@ if (DatabaseConfig::isDebugMode()) {
     ini_set('error_log', __DIR__ . '/../../error.log');
 }
 
-// Headers de seguridad
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
 header('X-XSS-Protection: 1; mode=block');
 
-// Permitir CORS solo desde el mismo dominio en producción
 if (DatabaseConfig::isDebugMode()) {
     header('Access-Control-Allow-Origin: *');
     header('Access-Control-Allow-Methods: GET, POST, OPTIONS');

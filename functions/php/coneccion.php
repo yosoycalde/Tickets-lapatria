@@ -1,5 +1,4 @@
 <?php
-// test_connection.php - Coloca este archivo en la raíz de tu proyecto
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -7,12 +6,10 @@ ini_set('display_errors', 1);
 echo "<h2>🔍 Verificador de Conexión - Sistema de Tickets</h2>";
 echo "<hr>";
 
-// Test 1: Verificar que PHP funciona
 echo "<h3>✅ Test 1: PHP está funcionando</h3>";
 echo "Versión de PHP: " . phpversion() . "<br>";
 echo "<hr>";
 
-// Test 2: Verificar que el archivo config existe
 echo "<h3>Test 2: Verificar archivos</h3>";
 if (file_exists('functions/php/config.php')) {
     echo "✅ config.php existe<br>";
@@ -24,7 +21,6 @@ if (file_exists('functions/php/config.php')) {
 }
 echo "<hr>";
 
-// Test 3: Verificar conexión a la base de datos
 echo "<h3>Test 3: Conexión a la Base de Datos</h3>";
 try {
     $conn = new mysqli('localhost', 'root', '', 'sistema_tickets');
@@ -42,8 +38,7 @@ try {
         echo "Charset: " . $conn->character_set_name() . "<br>";
     }
     echo "<hr>";
-    
-    // Test 4: Verificar tablas
+
     if (!$conn->connect_error) {
         echo "<h3>Test 4: Verificar Tablas</h3>";
         
@@ -54,7 +49,6 @@ try {
             if ($result && $result->num_rows > 0) {
                 echo "✅ Tabla '$tabla' existe<br>";
                 
-                // Contar registros
                 $count = $conn->query("SELECT COUNT(*) as total FROM $tabla");
                 $row = $count->fetch_assoc();
                 echo "&nbsp;&nbsp;&nbsp;→ Registros: " . $row['total'] . "<br>";
@@ -63,8 +57,7 @@ try {
             }
         }
         echo "<hr>";
-        
-        // Test 5: Verificar administradores
+
         echo "<h3>Test 5: Verificar Administradores</h3>";
         $result = $conn->query("SELECT * FROM administradores WHERE activo = 1");
         
@@ -98,7 +91,6 @@ try {
         }
         echo "<hr>";
         
-        // Test 6: Verificar sesiones
         echo "<h3>Test 6: Verificar Sesiones PHP</h3>";
         session_start();
         if (session_status() === PHP_SESSION_ACTIVE) {
@@ -109,7 +101,6 @@ try {
         }
         echo "<hr>";
         
-        // Test 7: Verificar permisos de escritura
         echo "<h3>Test 7: Verificar Permisos de Archivos</h3>";
         
         $directorios_importantes = [
