@@ -21,7 +21,7 @@
             <button class="tab-button" onclick="showTab('consultar')">Consultar Tickets</button>
         </div>
 
-          <div id="crear" class="tab-content active">
+        <div id="crear" class="tab-content active">
             <div class="form-container">
                 <h2>Crear Nuevo Ticket</h2>
                 <form id="ticketForm">
@@ -68,8 +68,10 @@
                     <div class="form-group">
                         <label for="prioridad">Prioridad (Asignada automáticamente) *</label>
                         <div class="priority-display">
-                            <input type="text" id="prioridad" name="prioridad" value="Media" readonly class="priority-readonly">
-                            <small class="priority-help">La prioridad se asigna automáticamente según la categoría seleccionada</small>
+                            <input type="text" id="prioridad" name="prioridad" value="Media" readonly
+                                class="priority-readonly">
+                            <small class="priority-help">La prioridad se asigna automáticamente según la categoría
+                                seleccionada</small>
                         </div>
                     </div>
 
@@ -133,6 +135,7 @@
     <footer>
         <p>&copy; 2025 Sistema de Tickets - Empresa : La Patria. Todos los derechos reservados.</p>
     </footer>
+    <a href="admin.html">Admin</a>
 
     <script src="functions/js/index.js"></script>
 </body>

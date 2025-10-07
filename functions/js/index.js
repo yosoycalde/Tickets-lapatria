@@ -86,7 +86,6 @@ function getCategoryName(categoriaId) {
     return categorias[categoriaId] || 'Desconocida';
 }
 
-// Función para manejar la vista previa de la imagen
 function handleImagePreview() {
     const imageInput = document.getElementById('imagen');
     if (imageInput) {
@@ -98,7 +97,6 @@ function handleImagePreview() {
             const wrapper = document.querySelector('.file-input-wrapper');
 
             if (file) {
-                // Validar tipo de archivo
                 const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
                 if (!validTypes.includes(file.type)) {
                     showMessage('Por favor selecciona una imagen válida (JPG, PNG o GIF)', 'error');
@@ -106,19 +104,16 @@ function handleImagePreview() {
                     return;
                 }
 
-                // Validar tamaño (5MB máximo)
-                const maxSize = 5 * 1024 * 1024; // 5MB en bytes
+                const maxSize = 5 * 1024 * 1024;
                 if (file.size > maxSize) {
                     showMessage('La imagen no puede superar los 5MB', 'error');
                     imageInput.value = '';
                     return;
                 }
 
-                // Mostrar nombre del archivo
                 fileNameSpan.textContent = file.name;
                 wrapper.classList.add('has-file');
 
-                // Crear vista previa
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     imagePreview.src = e.target.result;
@@ -132,7 +127,6 @@ function handleImagePreview() {
     }
 }
 
-// Función para eliminar la imagen seleccionada
 function removeImage() {
     const imageInput = document.getElementById('imagen');
     const fileNameSpan = document.querySelector('.file-name');
@@ -240,7 +234,6 @@ function validateForm(formData) {
         errors.push('La descripción no puede exceder 2000 caracteres');
     }
 
-    // Validar imagen si existe
     const imagen = formData.get('imagen');
     if (imagen && imagen.size > 0) {
         const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
