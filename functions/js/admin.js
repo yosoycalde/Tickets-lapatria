@@ -65,17 +65,17 @@ async function handleLogin(event) {
         const result = await response.json();
 
         if (result.success) {
-            showMessage('loginMessage', '✅ Acceso concedido', 'success');
+            showMessage('loginMessage', ' Acceso concedido', 'success');
             setTimeout(() => {
                 mostrarPanelAdmin(result.admin);
                 cargarTickets();
             }, 1000);
         } else {
-            showMessage('loginMessage', '❌ ' + result.message, 'error');
+            showMessage('loginMessage', + result.message, 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        showMessage('loginMessage', '❌ Error de conexión', 'error');
+        showMessage('loginMessage', ' Error de conexión', 'error');
     } finally {
         setLoadingState(submitBtn, btnText, btnLoading, false);
     }
