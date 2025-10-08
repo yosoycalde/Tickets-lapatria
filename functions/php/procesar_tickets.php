@@ -65,7 +65,6 @@ try {
         $errors[] = 'La descripción no puede exceder 2000 caracteres';
     }
 
-    // Procesar imagen si existe
     $imagen_url = null;
     if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] !== UPLOAD_ERR_NO_FILE) {
         if ($_FILES['imagen']['error'] === UPLOAD_ERR_OK) {

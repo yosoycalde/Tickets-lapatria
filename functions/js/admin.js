@@ -91,14 +91,14 @@ async function cerrarSesion() {
         const result = await response.json();
 
         if (result.success) {
-            showMessage('adminMessage', '✅ Sesión cerrada correctamente', 'success');
+            showMessage('adminMessage', ' Sesión cerrada correctamente', 'success');
             setTimeout(() => {
                 window.location.reload();
             }, 1000);
         }
     } catch (error) {
         console.error('Error:', error);
-        showMessage('adminMessage', '❌ Error al cerrar sesión', 'error');
+        showMessage('adminMessage', ' Error al cerrar sesión', 'error');
     }
 }
 
