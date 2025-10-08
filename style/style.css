@@ -143,7 +143,6 @@ header p {
     transform: translateY(-2px);
 }
 
-/* Estilos específicos para el campo de prioridad no editable */
 .priority-display {
     position: relative;
 }
@@ -172,7 +171,6 @@ header p {
     font-style: italic;
 }
 
-/* Indicador visual de campo automático */
 .priority-display::after {
     content: "🔒 Automático";
     position: absolute;
@@ -192,7 +190,6 @@ header p {
     min-height: 120px;
 }
 
-/* Estilos para el campo de subida de imágenes */
 .file-input-wrapper {
     position: relative;
     margin-top: 8px;

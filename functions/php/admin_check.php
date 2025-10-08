@@ -5,7 +5,6 @@ header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
 try {
-    // Verificar si hay una sesión activa
     if (!isset($_SESSION['admin_id'])) {
         Utils::sendResponse(false, 'No hay sesión activa');
     }
