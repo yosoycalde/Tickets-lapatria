@@ -229,15 +229,15 @@ async function handleEditSubmit(event) {
         const result = await response.json();
 
         if (result.success) {
-            showMessage('adminMessage', '✅ Ticket actualizado exitosamente', 'success');
+            showMessage('adminMessage', 'Ticket actualizado exitosamente', 'success');
             cerrarModalEditar();
             cargarTickets();
         } else {
-            showMessage('adminMessage', '❌ ' + result.message, 'error');
+            showMessage('adminMessage', + result.message, 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        showMessage('adminMessage', '❌ Error al actualizar el ticket', 'error');
+        showMessage('adminMessage', 'Error al actualizar el ticket', 'error');
     } finally {
         setLoadingState(submitBtn, btnText, btnLoading, false);
     }
@@ -251,11 +251,11 @@ async function verDetalles(ticketId) {
         if (result.success) {
             mostrarModalDetalles(result.ticket);
         } else {
-            showMessage('adminMessage', '❌ Error al cargar los detalles', 'error');
+            showMessage('adminMessage', 'Error al cargar los detalles', 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        showMessage('adminMessage', '❌ Error al cargar los detalles', 'error');
+        showMessage('adminMessage', 'Error al cargar los detalles', 'error');
     }
 }
 

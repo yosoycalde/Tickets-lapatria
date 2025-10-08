@@ -3,19 +3,19 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-echo "<h2>🔍 Verificador de Conexión - Sistema de Tickets</h2>";
+echo "<h2>Verificador de Conexión - Sistema de Tickets</h2>";
 echo "<hr>";
 
-echo "<h3>✅ Test 1: PHP está funcionando</h3>";
+echo "<h3>Test 1: PHP está funcionando</h3>";
 echo "Versión de PHP: " . phpversion() . "<br>";
 echo "<hr>";
 
 echo "<h3>Test 2: Verificar archivos</h3>";
 if (file_exists('functions/php/config.php')) {
-    echo "✅ config.php existe<br>";
+    echo "config.php existe<br>";
     require_once 'functions/php/config.php';
 } else {
-    echo "❌ config.php NO existe<br>";
+    echo "config.php NO existe<br>";
     echo "Ruta buscada: " . __DIR__ . "/functions/php/config.php<br>";
     die("Por favor verifica la ruta del archivo config.php");
 }
@@ -26,14 +26,14 @@ try {
     $conn = new mysqli('localhost', 'root', '', 'sistema_tickets');
     
     if ($conn->connect_error) {
-        echo "❌ Error de conexión: " . $conn->connect_error . "<br>";
+        echo "Error de conexión: " . $conn->connect_error . "<br>";
         echo "<br><strong>Posibles soluciones:</strong><br>";
         echo "1. Verifica que MySQL/MariaDB esté ejecutándose<br>";
         echo "2. Verifica el nombre de usuario (por defecto: root)<br>";
         echo "3. Verifica la contraseña (por defecto: vacía)<br>";
         echo "4. Verifica que la base de datos 'sistema_tickets' exista<br>";
     } else {
-        echo "✅ Conexión exitosa a la base de datos<br>";
+        echo "Conexión exitosa a la base de datos<br>";
         echo "Base de datos: sistema_tickets<br>";
         echo "Charset: " . $conn->character_set_name() . "<br>";
     }
@@ -47,13 +47,13 @@ try {
         foreach ($tablas_requeridas as $tabla) {
             $result = $conn->query("SHOW TABLES LIKE '$tabla'");
             if ($result && $result->num_rows > 0) {
-                echo "✅ Tabla '$tabla' existe<br>";
+                echo "Tabla '$tabla' existe<br>";
                 
                 $count = $conn->query("SELECT COUNT(*) as total FROM $tabla");
                 $row = $count->fetch_assoc();
                 echo "&nbsp;&nbsp;&nbsp;→ Registros: " . $row['total'] . "<br>";
             } else {
-                echo "❌ Tabla '$tabla' NO existe<br>";
+                echo "Tabla '$tabla' NO existe<br>";
             }
         }
         echo "<hr>";
@@ -63,7 +63,7 @@ try {
         
         if ($result) {
             if ($result->num_rows > 0) {
-                echo "✅ Se encontraron " . $result->num_rows . " administrador(es) activo(s)<br><br>";
+                echo "Se encontraron " . $result->num_rows . " administrador(es) activo(s)<br><br>";
                 echo "<table border='1' cellpadding='5' cellspacing='0'>";
                 echo "<tr><th>ID</th><th>Usuario</th><th>Nombre</th><th>Email</th><th>Nivel</th></tr>";
                 while ($admin = $result->fetch_assoc()) {
@@ -77,7 +77,7 @@ try {
                 }
                 echo "</table>";
             } else {
-                echo "⚠️ No hay administradores en la base de datos<br>";
+                echo "No hay administradores en la base de datos<br>";
                 echo "<br><strong>Ejecuta este SQL para crear un administrador:</strong><br>";
                 echo "<pre style='background:#f4f4f4; padding:10px; border:1px solid #ccc;'>";
                 echo "INSERT INTO administradores (usuario, password, nombre, email, nivel_acceso) \n";
@@ -87,17 +87,17 @@ try {
                 echo "Contraseña: admin123<br>";
             }
         } else {
-            echo "❌ Error al consultar administradores: " . $conn->error . "<br>";
+            echo "Error al consultar administradores: " . $conn->error . "<br>";
         }
         echo "<hr>";
         
         echo "<h3>Test 6: Verificar Sesiones PHP</h3>";
         session_start();
         if (session_status() === PHP_SESSION_ACTIVE) {
-            echo "✅ Las sesiones PHP están funcionando<br>";
+            echo "Las sesiones PHP están funcionando<br>";
             echo "Session ID: " . session_id() . "<br>";
         } else {
-            echo "❌ Las sesiones PHP NO están funcionando<br>";
+            echo "Las sesiones PHP NO están funcionando<br>";
         }
         echo "<hr>";
         
@@ -113,12 +113,12 @@ try {
         foreach ($directorios_importantes as $dir) {
             if (is_dir($dir)) {
                 if (is_writable($dir)) {
-                    echo "✅ '$dir' existe y es escribible<br>";
+                    echo "'$dir' existe y es escribible<br>";
                 } else {
-                    echo "⚠️ '$dir' existe pero NO es escribible<br>";
+                    echo "'$dir' existe pero NO es escribible<br>";
                 }
             } else {
-                echo "❌ '$dir' NO existe<br>";
+                echo "'$dir' NO existe<br>";
             }
         }
         
