@@ -1,5 +1,3 @@
-// functions/js/admin.js
-
 document.addEventListener('DOMContentLoaded', function() {
     verificarSesion();
     inicializarEventos();
