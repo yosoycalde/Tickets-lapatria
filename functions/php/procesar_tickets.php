@@ -71,7 +71,7 @@ try {
             $allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
             $file_type = $_FILES['imagen']['type'];
             $file_size = $_FILES['imagen']['size'];
-            $max_size = 5 * 1024 * 1024; // 5MB
+            $max_size = 5 * 1024 * 1024; 
 
             if (!in_array($file_type, $allowed_types)) {
                 $errors[] = 'El archivo debe ser una imagen válida (JPG, PNG o GIF)';
