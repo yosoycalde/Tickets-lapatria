@@ -126,13 +126,13 @@ try {
     }
     
 } catch (Exception $e) {
-    echo "❌ Error general: " . $e->getMessage() . "<br>";
+    echo "Error general: " . $e->getMessage() . "<br>";
 }
 
 echo "<hr>";
 echo "<h3>📋 Resumen</h3>";
-echo "<p>Si todos los tests muestran ✅, tu sistema está correctamente configurado.</p>";
-echo "<p>Si hay errores ❌, revisa las soluciones sugeridas arriba.</p>";
+echo "<p>Si todos los tests muestran, tu sistema está correctamente configurado.</p>";
+echo "<p>Si hay errores, revisa las soluciones sugeridas arriba.</p>";
 echo "<br>";
 echo "<a href='admin.html' style='padding:10px 20px; background:#667eea; color:white; text-decoration:none; border-radius:5px;'>Ir al Panel de Administración</a>";
 echo "&nbsp;&nbsp;";

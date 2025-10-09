@@ -7,50 +7,42 @@ header('Access-Control-Allow-Methods: GET');
 header('Access-Control-Allow-Headers: Content-Type');
 
 try {
-    // Verificar que sea una solicitud GET
     if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
         Utils::sendResponse(false, 'Método no permitido');
     }
 
-    // Verificar que haya sesión activa
     if (!isset($_SESSION['admin_id'])) {
         Utils::sendResponse(false, 'No hay sesión activa de administrador', null, 401);
     }
 
     $conn = DatabaseConfig::getDirectConnection();
 
-    // Obtener parámetros de filtro
     $estado = !empty($_GET['estado']) ? Utils::sanitizeInput($_GET['estado']) : '';
     $prioridad = !empty($_GET['prioridad']) ? Utils::sanitizeInput($_GET['prioridad']) : '';
     $categoria = !empty($_GET['categoria']) ? filter_var($_GET['categoria'], FILTER_VALIDATE_INT) : '';
 
-    // Construir la consulta base
     $where_conditions = [];
     $params = [];
     $param_types = '';
 
-    // Filtro de estado
     if (!empty($estado)) {
         $where_conditions[] = 't.estado = ?';
         $params[] = $estado;
         $param_types .= 's';
     }
 
-    // Filtro de prioridad
     if (!empty($prioridad)) {
         $where_conditions[] = 't.prioridad = ?';
         $params[] = $prioridad;
         $param_types .= 's';
     }
 
-    // Filtro de categoría
     if (!empty($categoria) && $categoria > 0) {
         $where_conditions[] = 't.categoria_id = ?';
         $params[] = $categoria;
         $param_types .= 'i';
     }
 
-    // Construir la consulta SQL
     $where_clause = !empty($where_conditions) ? ' WHERE ' . implode(' AND ', $where_conditions) : '';
 
     $query = "
@@ -77,7 +69,6 @@ try {
 
     $stmt = $conn->prepare($query);
 
-    // Enlazar parámetros si existen
     if (!empty($params)) {
         $stmt->bind_param($param_types, ...$params);
     }
@@ -108,7 +99,6 @@ try {
         ];
     }
 
-    // Obtener estadísticas
     $stats_query = "
         SELECT
             COUNT(*) as total,

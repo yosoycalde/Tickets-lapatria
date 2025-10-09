@@ -3,7 +3,7 @@ require_once 'functions/php/config.php';
 
 header('Content-Type: application/json');
 
-echo "<h2>🔍 DEBUG - Sistema de Administración</h2><hr>";
+echo "<h2>DEBUG - Sistema de Administración</h2><hr>";
 
 try {
     $conn = DatabaseConfig::getDirectConnection();
@@ -26,7 +26,7 @@ try {
     echo "</pre>";
     
     if ($result->num_rows === 0) {
-        echo "<p style='color:red;'><strong>⚠️ No hay administradores en la BD</strong></p>";
+        echo "<p style='color:red;'><strong>No hay administradores en la BD</strong></p>";
         echo "<p>Ejecuta este SQL:</p>";
         echo "<pre style='background:#f0f0f0; padding:10px;'>";
         echo "INSERT INTO administradores (usuario, password, nombre, email, nivel_acceso, activo) 

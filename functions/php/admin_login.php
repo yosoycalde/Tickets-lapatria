@@ -41,19 +41,16 @@ try {
 
     $admin = $result->fetch_assoc();
 
-    // Verificar la contraseña
     if (!password_verify($password, $admin['password'])) {
         error_log("Intento de login fallido - Contraseña incorrecta para usuario: $usuario");
         Utils::sendResponse(false, 'Usuario o contraseña incorrectos');
     }
 
-    // Iniciar sesión
     $_SESSION['admin_id'] = $admin['id'];
     $_SESSION['admin_usuario'] = $admin['usuario'];
     $_SESSION['admin_nombre'] = $admin['nombre'];
     $_SESSION['admin_nivel'] = $admin['nivel_acceso'];
 
-    // Actualizar última conexión
     $update_stmt = $conn->prepare("UPDATE administradores SET ultima_conexion = NOW() WHERE id = ?");
     $update_stmt->bind_param("i", $admin['id']);
     $update_stmt->execute();
