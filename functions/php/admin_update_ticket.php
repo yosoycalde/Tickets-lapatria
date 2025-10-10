@@ -11,7 +11,6 @@ try {
         Utils::sendResponse(false, 'Método no permitido', null, 405);
     }
 
-    // Verificar sesión de administrador
     if (!isset($_SESSION['admin_id'])) {
         Utils::sendResponse(false, 'No hay sesión activa de administrador', null, 401);
     }
@@ -42,7 +41,6 @@ try {
 
     $conn = DatabaseConfig::getDirectConnection();
 
-    // Verificar que el ticket exista
     $check_stmt = $conn->prepare("SELECT id FROM tickets WHERE id = ?");
     $check_stmt->bind_param("i", $ticket_id);
     $check_stmt->execute();
@@ -55,7 +53,6 @@ try {
     $conn->autocommit(false);
 
     try {
-        // Actualizar ticket
         $update_stmt = $conn->prepare("
             UPDATE tickets
             SET estado = ?, prioridad = ?, asignado_a = ?, fecha_actualizacion = NOW()
@@ -72,7 +69,6 @@ try {
             throw new Exception('Error al actualizar ticket: ' . $update_stmt->error);
         }
 
-        // Agregar comentario si se proporciona
         if (!empty($comentario)) {
             $admin_nombre = $_SESSION['admin_nombre'] ?? 'Administrador';
             
