@@ -166,7 +166,7 @@ try {
             ");
 
             if (!$stmt_ticket) {
-                throw new Exception('Error en la inserción de ticket: ' . $conn->error);
+                throw new Exception('Error En La Inserción De Ticket: ' . $conn->error);
             }
 
             $stmt_ticket->bind_param("iissss", $usuario_id, $categoria_id, $titulo, $descripcion, $prioridad, $imagen_url);
@@ -191,7 +191,7 @@ try {
 
         $conn->commit();
 
-        error_log("Ticket creado exitosamente - ID: $ticket_id, Usuario: $email" . ($imagen_url ? ", Con imagen: $imagen_url" : ""));
+        error_log("Ticket Creado Exitosamente - ID: $ticket_id, Usuario: $email" . ($imagen_url ? ", Con imagen: $imagen_url" : ""));
 
         Utils::sendResponse(true, 'Ticket creado exitosamente', [
             'ticket_id' => $ticket_id,
