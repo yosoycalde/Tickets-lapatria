@@ -1,5 +1,4 @@
 <?php
-
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -121,7 +120,6 @@ try {
                 echo "'$dir' NO existe<br>";
             }
         }
-        
         $conn->close();
     }
     
@@ -130,7 +128,7 @@ try {
 }
 
 echo "<hr>";
-echo "<h3>📋 Resumen</h3>";
+echo "<h3> Resumen</h3>";
 echo "<p>Si todos los tests muestran, tu sistema está correctamente configurado.</p>";
 echo "<p>Si hay errores, revisa las soluciones sugeridas arriba.</p>";
 echo "<br>";
