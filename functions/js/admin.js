@@ -46,7 +46,7 @@ function mostrarPanelAdmin(admin) {
 async function handleLogin(event) {
     event.preventDefault();
 
-    const submitBtn = event.target.querySelector('.login-btn');
+    const submitBtn = document.querySelector('.login-btn');
     const btnText = submitBtn.querySelector('.btn-text');
     const btnLoading = submitBtn.querySelector('.btn-loading');
 
