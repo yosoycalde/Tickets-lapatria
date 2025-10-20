@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     verificarSesion();
     inicializarEventos();
 });
@@ -15,7 +15,7 @@ function inicializarEventos() {
     }
 }
 
-async function verificarSesion(){
+async function verificarSesion() {
     try {
         const response = await fetch('functions/php/admin_check.php');
         const result = await response.json();
@@ -46,7 +46,7 @@ function mostrarPanelAdmin(admin) {
 async function handleLogin(event) {
     event.preventDefault();
 
-    const submitBtn = event.target.qurySelector('.login-btn');
+    const submitBtn = event.target.querySelector('.login-btn');
     const btnText = submitBtn.querySelector('.btn-text');
     const btnLoading = submitBtn.querySelector('.btn-loading');
 
@@ -64,12 +64,12 @@ async function handleLogin(event) {
 
         if (result.success) {
             showMessage('loginMessage', 'Acceso Concedido', 'success');
-            setTimeout(()=> {
+            setTimeout(() => {
                 mostrarPanelAdmin(result.admin);
                 cargarTickets();
             }, 1000);
         } else {
-            showMessage('loginMessage', + result.message, 'error');
+            showMessage('loginMessage', result.message, 'error');
         }
     } catch (error) {
         console.error('Error:', error);
@@ -80,16 +80,16 @@ async function handleLogin(event) {
 }
 
 async function cerrarSesion() {
-    if (!confirm('¿Estas seguro de que deseas cerrar sesión?')) {
+    if (!confirm('¿Estás seguro de que deseas cerrar sesión?')) {
         return;
     }
 
     try {
-        const response =await fetch ('functions/php/admin_logout.php');
+        const response = await fetch('functions/php/admin_logout.php');
         const result = await response.json();
 
         if (result.success) {
-            showMessage('adminMessage', ' Sesión cerrada correctamente', 'success');
+            showMessage('adminMessage', 'Sesión cerrada correctamente', 'success');
             setTimeout(() => {
                 window.location.reload();
             }, 1000);
@@ -109,7 +109,7 @@ async function cargarTickets() {
     const categoria = document.getElementById('filterCategoria').value;
 
     let url = 'functions/php/admin_get_tickets.php?';
-    if (estado) url += `estado=${encodeURIConponent(estado)}&`;
+    if (estado) url += `estado=${encodeURIComponent(estado)}&`;
     if (prioridad) url += `prioridad=${encodeURIComponent(prioridad)}&`;
     if (categoria) url += `categoria=${encodeURIComponent(categoria)}&`;
 
@@ -131,9 +131,9 @@ async function cargarTickets() {
 
 function actualizarEstadisticas(stats) {
     document.getElementById('statTotal').textContent = stats.total || 0;
-    document.getElementById('statAbiertos').textContent =stats.abiertos ||0;
-    document.getElementById('statProceso').textContent = stats.en_proceso ||0;
-    document.getElementById('statResueltos').textContent = stats.resueltos ||0;
+    document.getElementById('statAbiertos').textContent = stats.abiertos || 0;
+    document.getElementById('statProceso').textContent = stats.en_proceso || 0;
+    document.getElementById('statResueltos').textContent = stats.resueltos || 0;
 }
 
 function mostrarTickets(tickets) {
@@ -145,51 +145,51 @@ function mostrarTickets(tickets) {
     }
 
     let html = '';
-    tickets.fotEach(ticker => {
-        const statusClass = `status-${tickets.estado.toLowerCase().replace(' ', '-')}`;
-        const priorityClass = `priority-${tickets.prioridad.toLoweCase()}`;
+    tickets.forEach(ticket => {
+        const statusClass = `status-${ticket.estado.toLowerCase().replace(' ', '-')}`;
+        const priorityClass = `priority-${ticket.prioridad.toLowerCase()}`;
 
         html += `
             <div class="admin-ticket-card ${priorityClass}">
                 <div class="ticket-header-admin">
                     <div class="ticket-info-left">
-                        <span class="ticket-id">Ticket #${tickets.id}</span>
-                        <span class="ticket-status ${statusClass}">${tickets.estado}</span>
-                        <span class="priority-badge priority-${tickets.prioridad}">${tickets.prioridad.toUpperCase()}</span>
+                        <span class="ticket-id">Ticket #${ticket.id}</span>
+                        <span class="ticket-status ${statusClass}">${ticket.estado}</span>
+                        <span class="priority-badge priority-${ticket.prioridad}">${ticket.prioridad.toUpperCase()}</span>
                     </div>
                     <div class="ticket-actions">
-                        <button onclick="verDetalles(${tickets.id})" class="btn-view" title="ver detalles">Desatalles</button>
-                        <button onclick="editarTicket(${tickets.id}, '${tickets.estado}', '${tickets.prioridad}', '${escapeQuotes(tickets.asignado_a || '')}')" class="btn-edit" title="Editar">Editar</button>
+                        <button onclick="verDetalles(${ticket.id})" class="btn-view" title="Ver detalles">Detalles</button>
+                        <button onclick="editarTicket(${ticket.id}, '${ticket.estado}', '${ticket.prioridad}', '${escapeQuotes(ticket.asignado_a || '')}')" class="btn-edit" title="Editar">Editar</button>
                     </div>
                 </div>
 
-                <div class="ticket-title-admin"> ${escapeHtml(tickets.titulo)}</div>
+                <div class="ticket-title-admin">${escapeHtml(ticket.titulo)}</div>
                 
                 <div class="ticket-meta-admin">
                     <div class="meta-item">
-                        <strong>Usuario:</strong> ${escapeHtml(tickets.usuario.nombre)}
+                        <strong>Usuario:</strong> ${escapeHtml(ticket.usuario.nombre)}
                     </div>
                     <div class="meta-item">
-                        <strong>Email:</strong> ${escapeHtml(tickets.ususario.email)}
+                        <strong>Email:</strong> ${escapeHtml(ticket.usuario.email)}
                     </div>
                     <div class="meta-item">
-                        <strong>Departamento:</strong> ${escapeHtml(tickets.usuario.departamento || 'N/A')}
+                        <strong>Departamento:</strong> ${escapeHtml(ticket.usuario.departamento || 'N/A')}
                     </div>
                     <div class="meta-item">
-                        <strong>ÇCategoría:</strong> ${escapeHtml(tickets.categoria_nombre)}
+                        <strong>Categoría:</strong> ${escapeHtml(ticket.categoria_nombre)}
                     </div>
-                    ${tickets.asignado_a ? `
+                    ${ticket.asignado_a ? `
                     <div class="meta-item">
-                        <strong>Asignado a:</strong> ${escapeHtml(tickets.asignado_a)}
+                        <strong>Asignado a:</strong> ${escapeHtml(ticket.asignado_a)}
                     </div>
                     ` : ''}
                     <div class="meta-item">
-                        <strong>Creado:</strong> ${formtDate(tickets.fecha_creacion)}
+                        <strong>Creado:</strong> ${formatDate(ticket.fecha_creacion)}
                     </div>
                 </div>
 
                 <div class="ticket-description-preview">
-                    ${escapeHtml(tickets.description.substring(0, 150))} ${tickets.descripcion.length > 150 ? '...' : ''}
+                    ${escapeHtml(ticket.descripcion.substring(0, 150))}${ticket.descripcion.length > 150 ? '...' : ''}
                 </div>
             </div>
         `;
@@ -233,7 +233,7 @@ async function handleEditSubmit(event) {
             cerrarModalEditar();
             cargarTickets();
         } else {
-            showMessage('adminMessage', + result.message, 'error');
+            showMessage('adminMessage', result.message, 'error');
         }
     } catch (error) {
         console.error('Error:', error);
@@ -243,7 +243,7 @@ async function handleEditSubmit(event) {
     }
 }
 
-async function verDetalles(editTicketId) {
+async function verDetalles(ticketId) {
     try {
         const response = await fetch(`functions/php/detalles_ticket.php?id=${ticketId}`);
         const result = await response.json();
@@ -251,7 +251,7 @@ async function verDetalles(editTicketId) {
         if (result.success) {
             mostrarModalDetalles(result.ticket);
         } else {
-            showMessage('adminMessage', 'Error al caregar los detalles', 'error');
+            showMessage('adminMessage', 'Error al cargar los detalles', 'error');
         }
     } catch (error) {
         console.error('Error:', error);
@@ -321,38 +321,38 @@ function mostrarModalDetalles(ticket) {
                 ` : ''}
             </div>
 
-                <div class="info-item full-with">
-                    <strong>Descripción:</strong>
-                    <div class="descripdion-box">${escapeHtml(ticket.descripcion).replace(/\n/g, '<br>')}</div>
-                </div>
+            <div class="info-item full-width">
+                <strong>Descripción:</strong>
+                <div class="description-box">${escapeHtml(ticket.descripcion).replace(/\n/g, '<br>')}</div>
+            </div>
 
-                ${ticket.imagen_url ? `
-                    <div class="info-item full-width">
-                        <strong>Imagen adjunta:</strong>
-                        <div class="tickets-image-container">
-                            <img src="${ticket.imgen_url}" alt="Imagen del ticket" onclick="window.open('${ticket.imagen_url}', '_blank')">
-                        </div>
+            ${ticket.imagen_url ? `
+                <div class="info-item full-width">
+                    <strong>Imagen adjunta:</strong>
+                    <div class="ticket-image-container">
+                        <img src="${ticket.imagen_url}" alt="Imagen del ticket" onclick="window.open('${ticket.imagen_url}', '_blank')">
                     </div>
-                    `: ''}
+                </div>
+            ` : ''}
 
-                    ${ticket.comentarios && ticket.comentarios.length > 0 ? `
-                    <div class="comentarios-section">
-                        <h3>Comentarios y Respuestas:</h3>
-                        <div class="comentarios-list">
-                            ${ticket.comentarios.map(comentario => `
-                                <div class="comentario">
-                                    <div class="comentario-header">
-                                        <strong>${escapeHtml(comentario.autor)}</strong>
-                                        <span class="comentario-fecha">${formatDate(comentario.fecha_comentario)}</span>
-                                    </div>
-                                    <div class="comentario-texto">${escapeHtml(comentario.comentario).replace(/\n/g, '<br>')}</div>
+            ${ticket.comentarios && ticket.comentarios.length > 0 ? `
+                <div class="comentarios-section">
+                    <h3>Comentarios y Respuestas:</h3>
+                    <div class="comentarios-list">
+                        ${ticket.comentarios.map(comentario => `
+                            <div class="comentario">
+                                <div class="comentario-header">
+                                    <strong>${escapeHtml(comentario.autor)}</strong>
+                                    <span class="comentario-fecha">${formatDate(comentario.fecha_comentario)}</span>
                                 </div>
-                            `).join('')}
-                        </div>
+                                <div class="comentario-texto">${escapeHtml(comentario.comentario).replace(/\n/g, '<br>')}</div>
+                            </div>
+                        `).join('')}
                     </div>
-                    ` : ''}
                 </div>
-        `;
+            ` : ''}
+        </div>
+    `;
 
     details.innerHTML = html;
     modal.style.display = 'block';
@@ -441,10 +441,10 @@ function formatDate(dateString) {
     }
 }
 
-window.onclick = function(event) {
+window.onclick = function (event) {
     const editModal = document.getElementById('editModal');
     const detailsModal = document.getElementById('detailsModal');
-    
+
     if (event.target === editModal) {
         cerrarModalEditar();
     }
@@ -453,7 +453,7 @@ window.onclick = function(event) {
     }
 }
 
-document.addEventListener('keydown', function(event) {
+document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') {
         cerrarModalEditar();
         cerrarModalDetalles();
