@@ -103,7 +103,7 @@ try {
     }
 
 } catch (Exception $e) {
-    error_log("Error en admin_update_ticket: " . $e->getMessage());
+    error_log("Error En admin_update_ticket: " . $e->getMessage());
     Utils::sendResponse(false, 'Error de conexión', null, 500);
 } finally {
     DatabaseConfig::getInstance()->closeConnection();
