@@ -290,11 +290,11 @@ $action = $_GET['action'] ?? '';
                     <span class="log-info-value">
                         <?php 
                         if ($size_mb > 5) {
-                            echo '<span style="color: #e53e3e; font-weight: 600;">⚠️ Tamaño excedido (>5MB)</span>';
+                            echo '<span style="color: #e53e3e; font-weight: 600;"> Tamaño excedido (>5MB)</span>';
                         } elseif ($days_old > 7) {
-                            echo '<span style="color: #ed8936; font-weight: 600;">⚠️ Antiguo (>7 días)</span>';
+                            echo '<span style="color: #ed8936; font-weight: 600;"> Antiguo (>7 días)</span>';
                         } else {
-                            echo '<span style="color: #48bb78; font-weight: 600;">✅ Normal</span>';
+                            echo '<span style="color: #48bb78; font-weight: 600;"> Normal</span>';
                         }
                         ?>
                     </span>
