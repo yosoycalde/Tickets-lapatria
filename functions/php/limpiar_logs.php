@@ -1,15 +1,8 @@
 <?php
-/**
- * Script de Limpieza Manual de Logs
- * Guarda este archivo en la raíz del proyecto (junto a index.html)
- * Accede a él desde el navegador cuando necesites limpiar los logs manualmente
- */
-
 require_once 'functions/php/config.php';
 
 header('Content-Type: text/html; charset=utf-8');
 
-// Protección básica - cambiar esta contraseña
 $ADMIN_PASSWORD = 'admin123';
 
 $password_provided = $_GET['password'] ?? '';
@@ -228,7 +221,7 @@ $action = $_GET['action'] ?? '';
         
         if ($password_provided !== $ADMIN_PASSWORD && $action !== '') {
             echo '<div class="error-box">';
-            echo '<strong>⚠️ Error:</strong> Contraseña incorrecta.';
+            echo '<strong>Error:</strong> Contraseña incorrecta.';
             echo '</div>';
             $action = '';
         }
@@ -236,11 +229,11 @@ $action = $_GET['action'] ?? '';
         if ($action === 'clean' && $password_provided === $ADMIN_PASSWORD) {
             if (Utils::manualCleanLog()) {
                 echo '<div class="success-box">';
-                echo '<strong>✅ Éxito:</strong> Los logs han sido limpiados correctamente. Se ha creado un respaldo.';
+                echo '<strong>Éxito:</strong> Los logs han sido limpiados correctamente. Se ha creado un respaldo.';
                 echo '</div>';
             } else {
                 echo '<div class="error-box">';
-                echo '<strong>❌ Error:</strong> No se pudieron limpiar los logs.';
+                echo '<strong>Error:</strong> No se pudieron limpiar los logs.';
                 echo '</div>';
             }
             $log_exists = file_exists($log_file);
@@ -248,7 +241,7 @@ $action = $_GET['action'] ?? '';
         ?>
         
         <div class="info-box">
-            <h3>ℹ️ Información</h3>
+            <h3>Información</h3>
             <p><strong>Limpieza Automática:</strong> Los logs se limpian automáticamente cuando:</p>
             <p>• El archivo tiene más de 7 días de antigüedad</p>
             <p>• El archivo supera los 5 MB de tamaño</p>
@@ -258,7 +251,7 @@ $action = $_GET['action'] ?? '';
         
         <?php if ($log_exists): ?>
             <div class="log-info">
-                <h3 style="margin-bottom: 15px; color: #2d3748;">📊 Estado Actual del Log</h3>
+                <h3 style="margin-bottom: 15px; color: #2d3748;">Estado Actual del Log</h3>
                 
                 <div class="log-info-item">
                     <span class="log-info-label">Tamaño:</span>
@@ -315,7 +308,7 @@ $action = $_GET['action'] ?? '';
         
         <?php if ($log_exists && $action !== 'confirm'): ?>
             <div class="warning-box">
-                <strong>⚠️ Advertencia:</strong> Esta acción creará un respaldo y limpiará el archivo error.log actual. Esta operación no se puede deshacer.
+                <strong> Advertencia:</strong> Esta acción creará un respaldo y limpiará el archivo error.log actual. Esta operación no se puede deshacer.
             </div>
             
             <form method="GET">
@@ -325,7 +318,7 @@ $action = $_GET['action'] ?? '';
                 </div>
                 
                 <button type="submit" name="action" value="clean" class="btn btn-danger">
-                    🧹 Limpiar Logs Ahora
+                    Limpiar Logs Ahora
                 </button>
                 
                 <a href="admin.html" class="btn btn-secondary">
@@ -338,14 +331,14 @@ $action = $_GET['action'] ?? '';
             </a>
             
             <a href="index.html" class="btn btn-secondary">
-                🏠 Ir al Inicio
+                Ir al Inicio
             </a>
         <?php endif; ?>
         
         <hr style="margin: 30px 0; border: none; border-top: 1px solid #e2e8f0;">
         
         <div class="info-box">
-            <h3>🔧 Configuración Avanzada</h3>
+            <h3>Configuración Avanzada</h3>
             <p>Para cambiar los parámetros de limpieza automática, edita el archivo:</p>
             <p><code style="background: #edf2f7; padding: 2px 6px; border-radius: 4px;">functions/php/config.php</code></p>
             <p style="margin-top: 10px;">Variables configurables:</p>
