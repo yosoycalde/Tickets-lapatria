@@ -21,7 +21,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg,#0761ab 30%,#615e5e 50%);
+    background: linear-gradient(135deg, #0761ab 30%, #615e5e 50%);
     min-height: 100vh;
 }
 
@@ -48,6 +48,7 @@ body {
         opacity: 0;
         transform: translateY(-20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -159,6 +160,7 @@ body {
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -283,7 +285,7 @@ body {
 }
 
 .stat-info {
-    flex: 1;
+    flex: 2;
 }
 
 .stat-value {
@@ -331,7 +333,7 @@ body {
     padding: 0 20px;
 }
 
-.filters-container > * {
+.filters-container>* {
     background: white;
     padding: 30px;
     border-radius: 16px;
@@ -393,7 +395,7 @@ body {
     padding: 0 20px;
 }
 
-.tickets-section > * {
+.tickets-section>* {
     background: white;
     padding: 30px;
     border-radius: 16px;
@@ -553,7 +555,8 @@ body {
     gap: 10px;
 }
 
-.btn-view, .btn-edit {
+.btn-view,
+.btn-edit {
     padding: 10px 18px;
     border: none;
     border-radius: 10px;
@@ -648,6 +651,7 @@ body {
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);

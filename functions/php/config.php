@@ -17,7 +17,6 @@ class DatabaseConfig {
     private $connection = null;
 
     private function __construct() {
-        // Limpiar logs automáticamente al iniciar
         self::cleanOldLogs();
     }
 
@@ -79,54 +78,37 @@ class DatabaseConfig {
         return $instance->getConnection();
     }
 
-    /**
-     * Limpia automáticamente el archivo error.log si es muy antiguo o muy grande
-     * Se ejecuta automáticamente cada vez que se instancia la clase
-     */
     private static function cleanOldLogs() {
         $log_file = __DIR__ . '/../../error.log';
         
-        // Si el archivo no existe, no hacer nada
         if (!file_exists($log_file)) {
             return;
         }
 
-        // Configuración de limpieza
-        $max_age_days = 7; // Limpiar logs mayores a 7 días
-        $max_size_mb = 5; // Limpiar si el archivo supera 5MB
-        
-        // Verificar tamaño del archivo
+        $max_age_days = 7;
+        $max_size_mb = 5; 
+
         $file_size_mb = filesize($log_file) / 1024 / 1024;
         
-        // Verificar antigüedad del archivo
         $file_age_days = (time() - filemtime($log_file)) / 86400;
         
-        // Limpiar si cumple alguna condición
         if ($file_age_days > $max_age_days || $file_size_mb > $max_size_mb) {
-            // Crear respaldo antes de limpiar
             $backup_file = __DIR__ . '/../../error_backup_' . date('Y-m-d_H-i-s') . '.log';
             
-            // Copiar contenido actual a respaldo
             if (copy($log_file, $backup_file)) {
-                // Limpiar el archivo original
                 file_put_contents($log_file, "");
                 
-                // Registrar la limpieza
                 error_log("=== LOG LIMPIADO AUTOMÁTICAMENTE ===");
                 error_log("Fecha: " . date('Y-m-d H:i:s'));
                 error_log("Razón: " . ($file_age_days > $max_age_days ? "Antigüedad ($file_age_days días)" : "Tamaño ($file_size_mb MB)"));
                 error_log("Respaldo creado: $backup_file");
                 error_log("====================================");
                 
-                // Opcional: Eliminar respaldos muy antiguos (más de 30 días)
                 self::cleanOldBackups();
             }
         }
     }
 
-    /**
-     * Elimina archivos de respaldo muy antiguos
-     */
     private static function cleanOldBackups() {
         $backup_dir = __DIR__ . '/../../';
         $max_backup_age = 30; // días
@@ -187,10 +169,6 @@ class Utils {
         error_log($log_message);
     }
 
-    /**
-     * Limpia manualmente el archivo error.log
-     * Útil para llamar desde un script de mantenimiento
-     */
     public static function manualCleanLog() {
         $log_file = __DIR__ . '/../../error.log';
         
