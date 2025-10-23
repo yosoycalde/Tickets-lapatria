@@ -50,7 +50,7 @@ VALUES ('admin', '\$2y\$10\$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/ig
     echo "<p>Total de categorías: " . $row['total'] . "</p>";
     
     echo "<h3>6. Test de login</h3>";
-    $password_test = '123';
+    $password_test = '123456';
     $hash = '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi';
     if (password_verify($password_test, $hash)) {
         echo "<p style='color:green;'><strong>✓ Verificación de contraseña: OK</strong></p>";
