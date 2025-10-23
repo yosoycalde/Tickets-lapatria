@@ -111,7 +111,7 @@ class DatabaseConfig {
 
     private static function cleanOldBackups() {
         $backup_dir = __DIR__ . '/../../';
-        $max_backup_age = 30; // días
+        $max_backup_age = 40;
         
         $files = glob($backup_dir . 'error_backup_*.log');
         
