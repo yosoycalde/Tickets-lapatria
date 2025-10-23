@@ -173,7 +173,7 @@ $action = $_GET['action'] ?? '';
         .log-info {
             background: #edf2f7;
             padding: 15px;
-            border-radius: 8px;
+            border-radius: 9px;
             margin-bottom: 20px;
         }
         
