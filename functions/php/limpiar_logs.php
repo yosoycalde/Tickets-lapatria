@@ -212,7 +212,7 @@ $action = $_GET['action'] ?? '';
 </head>
 <body>
     <div class="container">
-        <h1>🧹 Limpieza de Logs</h1>
+        <h1>Limpieza de Logs</h1>
         <p class="subtitle">Sistema de Tickets - La Patria</p>
         
         <?php
