@@ -162,7 +162,7 @@ $action = $_GET['action'] ?? '';
         }
         
         .btn-secondary {
-            background: #718096;
+            background: #626f83ff;
             color: white;
         }
         
