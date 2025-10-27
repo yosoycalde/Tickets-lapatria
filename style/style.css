@@ -111,6 +111,7 @@ header p {
 
 .form-group {
     margin-bottom: 25px;
+    position: relative;
 }
 
 .form-group label {
@@ -126,6 +127,7 @@ header p {
 .form-group textarea {
     width: 100%;
     padding: 15px;
+    padding-right: 45px;
     border: 2px solid #e2e8f0;
     border-radius: 10px;
     font-size: 16px;
@@ -141,6 +143,157 @@ header p {
     background: white;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     transform: translateY(-2px);
+}
+
+.form-group input.is-valid,
+.form-group select.is-valid,
+.form-group textarea.is-valid {
+    border-color: #48bb78;
+    background: #f0fff4;
+}
+
+.form-group input.is-invalid,
+.form-group select.is-invalid,
+.form-group textarea.is-invalid {
+    border-color: #f56565;
+    background: #fff5f5;
+}
+
+.form-group input.is-warning,
+.form-group select.is-warning,
+.form-group textarea.is-warning {
+    border-color: #ed8936;
+    background: #fffaf0;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.validation-icon {
+    position: absolute;
+    right: 15px;
+    top: 45px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.validation-icon.success {
+    color: #48bb78;
+    opacity: 1;
+    animation: scaleIn 0.3s ease;
+}
+
+.validation-icon.error {
+    color: #f56565;
+    opacity: 1;
+    animation: shake 0.4s ease;
+}
+
+.validation-icon.warning {
+    color: #ed8936;
+    opacity: 1;
+    animation: scaleIn 0.3s ease;
+}
+
+.validation-feedback {
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    min-height: 18px;
+    transition: all 0.3s ease;
+    opacity: 0;
+}
+
+.validation-feedback.success {
+    color: #38a169;
+    opacity: 1;
+}
+
+.validation-feedback.error {
+    color: #e53e3e;
+    opacity: 1;
+}
+
+.validation-feedback.warning {
+    color: #dd6b20;
+    opacity: 1;
+}
+
+.char-counter {
+    text-align: right;
+    font-size: 13px;
+    margin-top: 6px;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.char-counter.normal {
+    color: #718096;
+}
+
+.char-counter.warning {
+    color: #ed8936;
+    font-weight: 600;
+}
+
+.char-counter.danger {
+    color: #f56565;
+    font-weight: 700;
+    animation: pulse 1s ease infinite;
+}
+
+@keyframes scaleIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-5px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(5px);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+.form-group textarea {
+    padding-right: 15px;
+}
+
+.form-group textarea + .validation-icon {
+    top: 45px;
 }
 
 .priority-display {
@@ -747,6 +900,10 @@ footer {
 
     .file-preview {
         max-width: 100%;
+    }
+
+    .validation-icon {
+        right: 10px;
     }
 }
 

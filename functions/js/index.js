@@ -24,7 +24,280 @@ function initializeApp() {
 
     initializePriorityAutomation();
     handleImagePreview();
+    initializeRealTimeValidation();
 }
+
+// ========================================
+// NUEVA FUNCIÓN: VALIDACIÓN EN TIEMPO REAL
+// ========================================
+function initializeRealTimeValidation() {
+    // Validación del nombre
+    const nombreInput = document.getElementById('nombre');
+    if (nombreInput) {
+        addValidationFeedback(nombreInput, 'nombre');
+        nombreInput.addEventListener('input', function () {
+            validateField(this, 'nombre');
+        });
+        nombreInput.addEventListener('blur', function () {
+            validateField(this, 'nombre');
+        });
+    }
+
+    // Validación del email
+    const emailInput = document.getElementById('email');
+    if (emailInput) {
+        addValidationFeedback(emailInput, 'email');
+        emailInput.addEventListener('input', function () {
+            validateField(this, 'email');
+        });
+        emailInput.addEventListener('blur', function () {
+            validateField(this, 'email');
+        });
+    }
+
+    // Validación del departamento
+    const departamentoSelect = document.getElementById('departamento');
+    if (departamentoSelect) {
+        addValidationFeedback(departamentoSelect, 'departamento');
+        departamentoSelect.addEventListener('change', function () {
+            validateField(this, 'departamento');
+        });
+    }
+
+    // Validación de categoría
+    const categoriaSelect = document.getElementById('categoria');
+    if (categoriaSelect) {
+        addValidationFeedback(categoriaSelect, 'categoria');
+        categoriaSelect.addEventListener('change', function () {
+            validateField(this, 'categoria');
+        });
+    }
+
+    // Validación del título
+    const tituloInput = document.getElementById('titulo');
+    if (tituloInput) {
+        addValidationFeedback(tituloInput, 'titulo');
+        tituloInput.addEventListener('input', function () {
+            validateField(this, 'titulo');
+            updateCharCounter(this, 200);
+        });
+        tituloInput.addEventListener('blur', function () {
+            validateField(this, 'titulo');
+        });
+        addCharCounter(tituloInput, 200);
+    }
+
+    // Validación de la descripción
+    const descripcionInput = document.getElementById('descripcion');
+    if (descripcionInput) {
+        addValidationFeedback(descripcionInput, 'descripcion');
+        descripcionInput.addEventListener('input', function () {
+            validateField(this, 'descripcion');
+            updateCharCounter(this, 2000);
+        });
+        descripcionInput.addEventListener('blur', function () {
+            validateField(this, 'descripcion');
+        });
+        addCharCounter(descripcionInput, 2000);
+    }
+}
+
+function addValidationFeedback(element, fieldType) {
+    const formGroup = element.closest('.form-group');
+    if (!formGroup) return;
+
+    // Crear contenedor de feedback si no existe
+    let feedbackContainer = formGroup.querySelector('.validation-feedback');
+    if (!feedbackContainer) {
+        feedbackContainer = document.createElement('div');
+        feedbackContainer.className = 'validation-feedback';
+        formGroup.appendChild(feedbackContainer);
+    }
+
+    // Crear icono de validación si no existe
+    let validationIcon = formGroup.querySelector('.validation-icon');
+    if (!validationIcon) {
+        validationIcon = document.createElement('span');
+        validationIcon.className = 'validation-icon';
+        element.parentNode.insertBefore(validationIcon, element.nextSibling);
+    }
+}
+
+function validateField(element, fieldType) {
+    const value = element.value.trim();
+    const formGroup = element.closest('.form-group');
+    const feedbackContainer = formGroup.querySelector('.validation-feedback');
+    const validationIcon = formGroup.querySelector('.validation-icon');
+
+    let isValid = true;
+    let message = '';
+
+    // Limpiar estados anteriores
+    element.classList.remove('is-valid', 'is-invalid', 'is-warning');
+    feedbackContainer.className = 'validation-feedback';
+    validationIcon.className = 'validation-icon';
+
+    switch (fieldType) {
+        case 'nombre':
+            if (value === '') {
+                isValid = false;
+                message = 'El nombre es requerido';
+            } else if (value.length < 3) {
+                isValid = false;
+                message = 'El nombre debe tener al menos 3 caracteres';
+            } else if (value.length > 100) {
+                isValid = false;
+                message = 'El nombre no puede exceder 100 caracteres';
+            } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
+                isValid = false;
+                message = 'El nombre solo puede contener letras';
+            } else {
+                message = '✓ Nombre válido';
+            }
+            break;
+
+        case 'email':
+            if (value === '') {
+                isValid = false;
+                message = 'El correo electrónico es requerido';
+            } else if (!isValidEmail(value)) {
+                isValid = false;
+                message = 'Formato de correo electrónico no válido';
+            } else if (value.length > 150) {
+                isValid = false;
+                message = 'El correo no puede exceder 150 caracteres';
+            } else {
+                message = '✓ Correo válido';
+            }
+            break;
+
+        case 'departamento':
+            if (value === '') {
+                isValid = false;
+                message = 'Debes seleccionar un departamento';
+            } else {
+                message = '✓ Departamento seleccionado';
+            }
+            break;
+
+        case 'categoria':
+            if (value === '') {
+                isValid = false;
+                message = 'Debes seleccionar una categoría';
+            } else {
+                message = '✓ Categoría seleccionada';
+            }
+            break;
+
+        case 'titulo':
+            if (value === '') {
+                isValid = false;
+                message = 'El título es requerido';
+            } else if (value.length < 5) {
+                isValid = false;
+                message = 'El título debe tener al menos 5 caracteres';
+            } else if (value.length > 200) {
+                isValid = false;
+                message = 'El título no puede exceder 200 caracteres';
+            } else if (value.length < 10) {
+                element.classList.add('is-warning');
+                message = '⚠ El título es muy corto, considera ser más descriptivo';
+                feedbackContainer.classList.add('warning');
+                validationIcon.innerHTML = '⚠';
+                validationIcon.classList.add('warning');
+                feedbackContainer.textContent = message;
+                return;
+            } else {
+                message = '✓ Título válido';
+            }
+            break;
+
+        case 'descripcion':
+            if (value === '') {
+                isValid = false;
+                message = 'La descripción es requerida';
+            } else if (value.length < 10) {
+                isValid = false;
+                message = 'La descripción debe tener al menos 10 caracteres';
+            } else if (value.length > 2000) {
+                isValid = false;
+                message = 'La descripción no puede exceder 2000 caracteres';
+            } else if (value.length < 30) {
+                element.classList.add('is-warning');
+                message = '⚠ La descripción es muy corta, agrega más detalles';
+                feedbackContainer.classList.add('warning');
+                validationIcon.innerHTML = '⚠';
+                validationIcon.classList.add('warning');
+                feedbackContainer.textContent = message;
+                return;
+            } else {
+                message = '✓ Descripción válida';
+            }
+            break;
+    }
+
+    // Aplicar estilos según validación
+    if (isValid) {
+        element.classList.add('is-valid');
+        feedbackContainer.classList.add('success');
+        validationIcon.innerHTML = '✓';
+        validationIcon.classList.add('success');
+    } else {
+        element.classList.add('is-invalid');
+        feedbackContainer.classList.add('error');
+        validationIcon.innerHTML = '✗';
+        validationIcon.classList.add('error');
+    }
+
+    feedbackContainer.textContent = message;
+
+    // Animación suave
+    feedbackContainer.style.opacity = '0';
+    setTimeout(() => {
+        feedbackContainer.style.opacity = '1';
+    }, 10);
+}
+
+function addCharCounter(element, maxLength) {
+    const formGroup = element.closest('.form-group');
+    let counter = formGroup.querySelector('.char-counter');
+
+    if (!counter) {
+        counter = document.createElement('div');
+        counter.className = 'char-counter';
+        formGroup.appendChild(counter);
+    }
+
+    updateCharCounter(element, maxLength);
+}
+
+function updateCharCounter(element, maxLength) {
+    const formGroup = element.closest('.form-group');
+    const counter = formGroup.querySelector('.char-counter');
+
+    if (!counter) return;
+
+    const currentLength = element.value.length;
+    const remaining = maxLength - currentLength;
+    const percentage = (currentLength / maxLength) * 100;
+
+    counter.textContent = `${currentLength} / ${maxLength} caracteres`;
+
+    // Cambiar color según el porcentaje usado
+    counter.classList.remove('warning', 'danger', 'normal');
+
+    if (percentage >= 90) {
+        counter.classList.add('danger');
+    } else if (percentage >= 70) {
+        counter.classList.add('warning');
+    } else {
+        counter.classList.add('normal');
+    }
+}
+
+// ========================================
+// FIN DE NUEVAS FUNCIONES
+// ========================================
 
 function initializePriorityAutomation() {
     const categoriaSelect = document.getElementById('categoria');
@@ -89,7 +362,7 @@ function getCategoryName(categoriaId) {
 function handleImagePreview() {
     const imageInput = document.getElementById('imagen');
     if (imageInput) {
-        imageInput.addEventListener('change', function(e) {
+        imageInput.addEventListener('change', function (e) {
             const file = e.target.files[0];
             const fileNameSpan = document.querySelector('.file-name');
             const filePreview = document.querySelector('.file-preview');
@@ -115,7 +388,7 @@ function handleImagePreview() {
                 wrapper.classList.add('has-file');
 
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     imagePreview.src = e.target.result;
                     filePreview.style.display = 'block';
                 };
@@ -140,7 +413,7 @@ function removeImage() {
         imagePreview.src = '';
         filePreview.style.display = 'none';
         wrapper.classList.remove('has-file');
-        
+
         showMessage('Imagen eliminada', 'info');
     }
 }
@@ -197,6 +470,18 @@ async function handleSubmit(event) {
                 prioridadSelect.value = 'media';
             }
 
+            document.querySelectorAll('.is-valid, .is-invalid, .is-warning').forEach(el => {
+                el.classList.remove('is-valid', 'is-invalid', 'is-warning');
+            });
+            document.querySelectorAll('.validation-feedback').forEach(el => {
+                el.textContent = '';
+                el.className = 'validation-feedback';
+            });
+            document.querySelectorAll('.validation-icon').forEach(el => {
+                el.innerHTML = '';
+                el.className = 'validation-icon';
+            });
+
             setTimeout(() => {
                 showMessage('Recibirás una confirmación por correo electrónico. Puedes consultar el estado de tu ticket en la pestaña "Consultar Tickets".', 'info');
             }, 2000);
@@ -240,8 +525,8 @@ function validateForm(formData) {
         if (!validTypes.includes(imagen.type)) {
             errors.push('El archivo debe ser una imagen válida (JPG, PNG o GIF)');
         }
-        
-        const maxSize = 5 * 1024 * 1024; // 5MB
+
+        const maxSize = 5 * 1024 * 1024;
         if (imagen.size > maxSize) {
             errors.push('La imagen no puede superar los 5MB');
         }
@@ -515,73 +800,6 @@ function formatDate(dateString) {
         });
     }
 }
-
-document.addEventListener('DOMContentLoaded', function () {
-    const emailInput = document.getElementById('email');
-    if (emailInput) {
-        emailInput.addEventListener('blur', function () {
-            if (this.value && !isValidEmail(this.value)) {
-                this.style.borderColor = '#e53e3e';
-                showMessage('Formato de correo electrónico no válido', 'error');
-            } else {
-                this.style.borderColor = '#e2e8f0';
-            }
-        });
-    }
-
-    const descripcionInput = document.getElementById('descripcion');
-    if (descripcionInput) {
-        const maxLength = 2000;
-        const counter = document.createElement('div');
-        counter.className = 'char-counter';
-        counter.style.textAlign = 'right';
-        counter.style.fontSize = '12px';
-        counter.style.color = '#2a2f36ff';
-        counter.style.marginTop = '5px';
-
-        descripcionInput.parentNode.appendChild(counter);
-
-        function updateCounter() {
-            const remaining = maxLength - descripcionInput.value.length;
-            counter.textContent = `${remaining} caracteres restantes`;
-
-            if (remaining < 100) {
-                counter.style.color = '#c21111ff';
-            } else if (remaining < 300) {
-                counter.style.color = '#ffaa00ff';
-            } else {
-                counter.style.color = '#8b9fbdff';
-            }
-        }
-
-        descripcionInput.addEventListener('input', updateCounter);
-        updateCounter();
-    }
-
-    const form = document.getElementById('ticketForm');
-    if (form) {
-        const inputs = form.querySelectorAll('input:not([type="file"]), select, textarea');
-
-        inputs.forEach(input => {
-            const savedValue = localStorage.getItem(`ticket_${input.name}`);
-            if (savedValue && input.type !== 'submit') {
-                input.value = savedValue;
-
-                if (input.name === 'categoria' && savedValue) {
-                    setTimeout(() => {
-                        setPrioridadAutomatica(savedValue);
-                    }, 100);
-                }
-            }
-
-            input.addEventListener('input', function () {
-                if (this.type !== 'submit') {
-                    localStorage.setItem(`ticket_${this.name}`, this.value);
-                }
-            });
-        });
-    }
-});
 
 function clearAutoSave() {
     const form = document.getElementById('ticketForm');
