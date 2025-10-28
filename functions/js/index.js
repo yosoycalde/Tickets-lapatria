@@ -27,11 +27,7 @@ function initializeApp() {
     initializeRealTimeValidation();
 }
 
-// ========================================
-// NUEVA FUNCIÓN: VALIDACIÓN EN TIEMPO REAL
-// ========================================
 function initializeRealTimeValidation() {
-    // Validación del nombre
     const nombreInput = document.getElementById('nombre');
     if (nombreInput) {
         addValidationFeedback(nombreInput, 'nombre');
@@ -43,7 +39,6 @@ function initializeRealTimeValidation() {
         });
     }
 
-    // Validación del email
     const emailInput = document.getElementById('email');
     if (emailInput) {
         addValidationFeedback(emailInput, 'email');
@@ -55,7 +50,6 @@ function initializeRealTimeValidation() {
         });
     }
 
-    // Validación del departamento
     const departamentoSelect = document.getElementById('departamento');
     if (departamentoSelect) {
         addValidationFeedback(departamentoSelect, 'departamento');
@@ -64,7 +58,6 @@ function initializeRealTimeValidation() {
         });
     }
 
-    // Validación de categoría
     const categoriaSelect = document.getElementById('categoria');
     if (categoriaSelect) {
         addValidationFeedback(categoriaSelect, 'categoria');
@@ -73,7 +66,6 @@ function initializeRealTimeValidation() {
         });
     }
 
-    // Validación del título
     const tituloInput = document.getElementById('titulo');
     if (tituloInput) {
         addValidationFeedback(tituloInput, 'titulo');
@@ -87,7 +79,6 @@ function initializeRealTimeValidation() {
         addCharCounter(tituloInput, 200);
     }
 
-    // Validación de la descripción
     const descripcionInput = document.getElementById('descripcion');
     if (descripcionInput) {
         addValidationFeedback(descripcionInput, 'descripcion');
@@ -106,7 +97,6 @@ function addValidationFeedback(element, fieldType) {
     const formGroup = element.closest('.form-group');
     if (!formGroup) return;
 
-    // Crear contenedor de feedback si no existe
     let feedbackContainer = formGroup.querySelector('.validation-feedback');
     if (!feedbackContainer) {
         feedbackContainer = document.createElement('div');
@@ -114,7 +104,6 @@ function addValidationFeedback(element, fieldType) {
         formGroup.appendChild(feedbackContainer);
     }
 
-    // Crear icono de validación si no existe
     let validationIcon = formGroup.querySelector('.validation-icon');
     if (!validationIcon) {
         validationIcon = document.createElement('span');
@@ -132,7 +121,6 @@ function validateField(element, fieldType) {
     let isValid = true;
     let message = '';
 
-    // Limpiar estados anteriores
     element.classList.remove('is-valid', 'is-invalid', 'is-warning');
     feedbackContainer.className = 'validation-feedback';
     validationIcon.className = 'validation-icon';
@@ -236,7 +224,6 @@ function validateField(element, fieldType) {
             break;
     }
 
-    // Aplicar estilos según validación
     if (isValid) {
         element.classList.add('is-valid');
         feedbackContainer.classList.add('success');
@@ -282,7 +269,6 @@ function updateCharCounter(element, maxLength) {
 
     counter.textContent = `${currentLength} / ${maxLength} caracteres`;
 
-    // Cambiar color según el porcentaje usado
     counter.classList.remove('warning', 'danger', 'normal');
 
     if (percentage >= 90) {
