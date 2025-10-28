@@ -295,9 +295,6 @@ function updateCharCounter(element, maxLength) {
     }
 }
 
-// ========================================
-// FIN DE NUEVAS FUNCIONES
-// ========================================
 
 function initializePriorityAutomation() {
     const categoriaSelect = document.getElementById('categoria');
