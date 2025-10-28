@@ -251,7 +251,6 @@ function validateField(element, fieldType) {
 
     feedbackContainer.textContent = message;
 
-    // Animación suave
     feedbackContainer.style.opacity = '0';
     setTimeout(() => {
         feedbackContainer.style.opacity = '1';
