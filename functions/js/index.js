@@ -337,7 +337,7 @@ function setPrioridadAutomatica(categoriaId) {
         }
 
         const categoriaName = getCategoryName(categoriaId);
-        showMessage(`Prioridad establecida como "${nuevaPrioridad.toUpperCase()}" para problemas de ${categoriaName}.`, 'info');
+        showMessage(`Prioridad establecida como "${nuevaPrioridad.toUpperCase()}"para problemas de ${categoriaName}.`, 'info');
         setTimeout(() => {
             hideMessage();
         }, 3000);
