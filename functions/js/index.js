@@ -12,10 +12,70 @@ const categoriaPrioridad = {
     '7': 'baja'
 };
 
+// ==================== NUEVAS CARACTERÍSTICAS ====================
+
+// Sistema de autoguardado
+let autoSaveTimer = null;
+const AUTOSAVE_DELAY = 2000; // 2 segundos
+
+// Sugerencias contextuales
+const sugerenciasPorCategoria = {
+    '1': 'Ejemplo: "No puedo acceder al sistema de correo" o "Error al imprimir documentos"',
+    '2': 'Ejemplo: "Contapyme no guarda los datos" o "Error al generar reporte"',
+    '3': 'Ejemplo: "No puedo subir artículos" o "Error en la publicación"',
+    '4': 'Ejemplo: "Internet muy lento" o "No hay conexión WiFi"',
+    '5': 'Ejemplo: "La computadora no enciende" o "Pantalla con rayas"',
+    '6': 'Ejemplo: "Error en facturación" o "No genera factura"',
+    '7': 'Ejemplo: "Solicitud de nuevo equipo" o "Consulta general"'
+};
+
+// Toast notifications (más amigables que los alerts)
+function showToast(message, type = 'info', duration = 5000) {
+    const existingToast = document.querySelector('.toast-notification');
+    if (existingToast) {
+        existingToast.remove();
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast-notification toast-${type}`;
+    toast.innerHTML = `
+        <div class="toast-content">
+            <span class="toast-icon">${getToastIcon(type)}</span>
+            <span class="toast-message">${message}</span>
+            <button class="toast-close" onclick="this.parentElement.parentElement.remove()">×</button>
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => toast.classList.add('show'), 10);
+    
+    if (duration > 0) {
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, duration);
+    }
+}
+
+function getToastIcon(type) {
+    const icons = {
+        'success': '✓',
+        'error': '✗',
+        'warning': '⚠',
+        'info': 'ℹ'
+    };
+    return icons[type] || 'ℹ';
+}
+
+// ==================== INICIALIZACIÓN MEJORADA ====================
+
 function initializeApp() {
     const form = document.getElementById('ticketForm');
     if (form) {
         form.addEventListener('submit', handleSubmit);
+        initializeAutoSave();
+        restoreAutoSavedData();
     }
 
     document.querySelectorAll('.tab-button').forEach(button => {
@@ -25,7 +85,430 @@ function initializeApp() {
     initializePriorityAutomation();
     handleImagePreview();
     initializeRealTimeValidation();
+    initializeProgressIndicator();
+    initializeKeyboardShortcuts();
+    addHelpTooltips();
+    initializeDarkMode();
+    initializeSmartSuggestions();
 }
+
+// ==================== AUTOGUARDADO ====================
+
+function initializeAutoSave() {
+    const form = document.getElementById('ticketForm');
+    if (!form) return;
+
+    const inputs = form.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        if (input.type !== 'file' && input.name) {
+            input.addEventListener('input', scheduleAutoSave);
+        }
+    });
+}
+
+function scheduleAutoSave() {
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(autoSaveFormData, AUTOSAVE_DELAY);
+}
+
+function autoSaveFormData() {
+    const form = document.getElementById('ticketForm');
+    if (!form) return;
+
+    const formData = {};
+    const inputs = form.querySelectorAll('input, select, textarea');
+    
+    inputs.forEach(input => {
+        if (input.type !== 'file' && input.name && input.value) {
+            formData[input.name] = input.value;
+        }
+    });
+
+    if (Object.keys(formData).length > 0) {
+        const dataToSave = {
+            data: formData,
+            timestamp: new Date().toISOString()
+        };
+        
+        try {
+            localStorage.setItem('ticket_autosave', JSON.stringify(dataToSave));
+            showAutoSaveIndicator();
+        } catch (e) {
+            console.warn('Error al autoguardar:', e);
+        }
+    }
+}
+
+function restoreAutoSavedData() {
+    try {
+        const saved = localStorage.getItem('ticket_autosave');
+        if (!saved) return;
+
+        const { data, timestamp } = JSON.parse(saved);
+        const savedDate = new Date(timestamp);
+        const now = new Date();
+        const hoursDiff = (now - savedDate) / (1000 * 60 * 60);
+
+        if (hoursDiff > 24) {
+            localStorage.removeItem('ticket_autosave');
+            return;
+        }
+
+        const hasData = Object.values(data).some(v => v && v.trim());
+        if (!hasData) return;
+
+        showRestorePrompt(data, savedDate);
+    } catch (e) {
+        console.warn('Error al restaurar datos:', e);
+    }
+}
+
+function showRestorePrompt(data, savedDate) {
+    const timeAgo = getTimeAgo(savedDate);
+    const message = `Se encontró un borrador guardado hace ${timeAgo}. ¿Deseas restaurarlo?`;
+    
+    const prompt = document.createElement('div');
+    prompt.className = 'restore-prompt';
+    prompt.innerHTML = `
+        <div class="restore-content">
+            <h3>💾 Borrador Encontrado</h3>
+            <p>${message}</p>
+            <div class="restore-actions">
+                <button class="btn-restore" onclick="restoreData()">Restaurar</button>
+                <button class="btn-discard" onclick="discardAutoSave()">Descartar</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(prompt);
+    setTimeout(() => prompt.classList.add('show'), 10);
+}
+
+function restoreData() {
+    try {
+        const saved = localStorage.getItem('ticket_autosave');
+        if (!saved) return;
+
+        const { data } = JSON.parse(saved);
+        
+        Object.keys(data).forEach(name => {
+            const input = document.querySelector(`[name="${name}"]`);
+            if (input && input.type !== 'file') {
+                input.value = data[name];
+                validateField(input, name);
+            }
+        });
+
+        document.querySelector('.restore-prompt').remove();
+        showToast('Borrador restaurado correctamente', 'success');
+    } catch (e) {
+        console.warn('Error al restaurar:', e);
+        showToast('Error al restaurar el borrador', 'error');
+    }
+}
+
+function discardAutoSave() {
+    localStorage.removeItem('ticket_autosave');
+    document.querySelector('.restore-prompt')?.remove();
+    showToast('Borrador descartado', 'info');
+}
+
+function showAutoSaveIndicator() {
+    let indicator = document.querySelector('.autosave-indicator');
+    
+    if (!indicator) {
+        indicator = document.createElement('div');
+        indicator.className = 'autosave-indicator';
+        indicator.textContent = '💾 Guardado';
+        document.body.appendChild(indicator);
+    }
+    
+    indicator.classList.add('show');
+    
+    setTimeout(() => {
+        indicator.classList.remove('show');
+    }, 2000);
+}
+
+function getTimeAgo(date) {
+    const seconds = Math.floor((new Date() - date) / 1000);
+    
+    if (seconds < 60) return 'menos de un minuto';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)} minutos`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)} horas`;
+    return `${Math.floor(seconds / 86400)} días`;
+}
+
+// ==================== SUGERENCIAS INTELIGENTES ====================
+
+function initializeSmartSuggestions() {
+    const categoriaSelect = document.getElementById('categoria');
+    const tituloInput = document.getElementById('titulo');
+    const descripcionInput = document.getElementById('descripcion');
+
+    if (categoriaSelect && tituloInput) {
+        categoriaSelect.addEventListener('change', function() {
+            const suggestion = sugerenciasPorCategoria[this.value];
+            if (suggestion) {
+                showSuggestion(tituloInput, suggestion);
+            }
+        });
+    }
+
+    if (descripcionInput) {
+        descripcionInput.addEventListener('focus', function() {
+            if (!this.value) {
+                showDescriptionTips();
+            }
+        });
+    }
+}
+
+function showSuggestion(input, text) {
+    let suggestion = input.parentElement.querySelector('.smart-suggestion');
+    
+    if (!suggestion) {
+        suggestion = document.createElement('div');
+        suggestion.className = 'smart-suggestion';
+        input.parentElement.appendChild(suggestion);
+    }
+    
+    suggestion.innerHTML = `<span class="suggestion-icon">💡</span> ${text}`;
+    suggestion.classList.add('show');
+    
+    setTimeout(() => {
+        suggestion.classList.remove('show');
+    }, 8000);
+}
+
+function showDescriptionTips() {
+    const tips = [
+        '¿Cuándo ocurrió el problema?',
+        '¿Qué estabas haciendo cuando sucedió?',
+        '¿Ya intentaste alguna solución?',
+        '¿El problema es recurrente o único?'
+    ];
+    
+    const descripcionInput = document.getElementById('descripcion');
+    let tipElement = descripcionInput.parentElement.querySelector('.description-tips');
+    
+    if (!tipElement) {
+        tipElement = document.createElement('div');
+        tipElement.className = 'description-tips';
+        tipElement.innerHTML = `
+            <div class="tips-header">💭 Tips para una mejor descripción:</div>
+            <ul>
+                ${tips.map(tip => `<li>${tip}</li>`).join('')}
+            </ul>
+        `;
+        descripcionInput.parentElement.appendChild(tipElement);
+    }
+    
+    tipElement.classList.add('show');
+}
+
+// ==================== INDICADOR DE PROGRESO ====================
+
+function initializeProgressIndicator() {
+    const form = document.getElementById('ticketForm');
+    if (!form) return;
+
+    const progressBar = document.createElement('div');
+    progressBar.className = 'form-progress';
+    progressBar.innerHTML = `
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+        <div class="progress-text">Completado: <span>0%</span></div>
+    `;
+    
+    form.insertBefore(progressBar, form.firstChild);
+
+    const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
+    inputs.forEach(input => {
+        input.addEventListener('input', updateProgress);
+        input.addEventListener('change', updateProgress);
+    });
+}
+
+function updateProgress() {
+    const form = document.getElementById('ticketForm');
+    const requiredFields = form.querySelectorAll('input[required], select[required], textarea[required]');
+    
+    let completed = 0;
+    requiredFields.forEach(field => {
+        if (field.value && field.value.trim() !== '') {
+            completed++;
+        }
+    });
+    
+    const percentage = Math.round((completed / requiredFields.length) * 100);
+    
+    const progressFill = document.querySelector('.progress-fill');
+    const progressText = document.querySelector('.progress-text span');
+    
+    if (progressFill) {
+        progressFill.style.width = percentage + '%';
+        progressFill.style.backgroundColor = getProgressColor(percentage);
+    }
+    
+    if (progressText) {
+        progressText.textContent = percentage + '%';
+    }
+}
+
+function getProgressColor(percentage) {
+    if (percentage < 33) return '#f56565';
+    if (percentage < 66) return '#ed8936';
+    return '#48bb78';
+}
+
+// ==================== ATAJOS DE TECLADO ====================
+
+function initializeKeyboardShortcuts() {
+    document.addEventListener('keydown', function(e) {
+        // Ctrl/Cmd + S = Guardar borrador
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            autoSaveFormData();
+            showToast('Borrador guardado manualmente', 'success', 2000);
+        }
+        
+        // Ctrl/Cmd + Enter = Enviar formulario
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            const activeTab = document.querySelector('.tab-content.active');
+            if (activeTab && activeTab.id === 'crear') {
+                e.preventDefault();
+                const form = document.getElementById('ticketForm');
+                if (form) {
+                    form.dispatchEvent(new Event('submit'));
+                }
+            }
+        }
+        
+        // Esc = Cerrar modal
+        if (e.key === 'Escape') {
+            closeModal();
+            const restorePrompt = document.querySelector('.restore-prompt');
+            if (restorePrompt) restorePrompt.remove();
+        }
+        
+        // Ctrl/Cmd + K = Buscar tickets
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            showTab('consultar');
+            setTimeout(() => {
+                document.getElementById('emailConsulta')?.focus();
+            }, 100);
+        }
+    });
+    
+    // Mostrar atajos disponibles
+    addKeyboardShortcutsHelp();
+}
+
+function addKeyboardShortcutsHelp() {
+    const helpButton = document.createElement('button');
+    helpButton.className = 'shortcuts-help-btn';
+    helpButton.innerHTML = '⌨️';
+    helpButton.title = 'Ver atajos de teclado';
+    helpButton.onclick = showShortcutsModal;
+    document.body.appendChild(helpButton);
+}
+
+function showShortcutsModal() {
+    const modal = document.createElement('div');
+    modal.className = 'shortcuts-modal';
+    modal.innerHTML = `
+        <div class="shortcuts-content">
+            <h3>⌨️ Atajos de Teclado</h3>
+            <div class="shortcut-list">
+                <div class="shortcut-item">
+                    <kbd>Ctrl/Cmd</kbd> + <kbd>S</kbd>
+                    <span>Guardar borrador</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Ctrl/Cmd</kbd> + <kbd>Enter</kbd>
+                    <span>Enviar formulario</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Ctrl/Cmd</kbd> + <kbd>K</kbd>
+                    <span>Buscar tickets</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Esc</kbd>
+                    <span>Cerrar modal</span>
+                </div>
+            </div>
+            <button class="btn-close-shortcuts" onclick="this.closest('.shortcuts-modal').remove()">Cerrar</button>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('show'), 10);
+    
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+}
+
+// ==================== TOOLTIPS DE AYUDA ====================
+
+function addHelpTooltips() {
+    const fieldsWithHelp = {
+        'titulo': 'Un título claro ayuda a priorizar tu ticket. Ejemplo: "Error al imprimir" es mejor que "Ayuda"',
+        'descripcion': 'Mientras más detalles proporciones, más rápido podremos ayudarte',
+        'categoria': 'Selecciona la categoría que mejor describa tu problema',
+        'departamento': 'Esto nos ayuda a dirigir tu ticket al área correcta'
+    };
+    
+    Object.keys(fieldsWithHelp).forEach(fieldName => {
+        const field = document.getElementById(fieldName);
+        if (field) {
+            const label = field.previousElementSibling;
+            if (label && label.tagName === 'LABEL') {
+                const tooltip = document.createElement('span');
+                tooltip.className = 'help-tooltip';
+                tooltip.innerHTML = '?';
+                tooltip.title = fieldsWithHelp[fieldName];
+                label.appendChild(tooltip);
+            }
+        }
+    });
+}
+
+// ==================== MODO OSCURO ====================
+
+function initializeDarkMode() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+    }
+    
+    const toggleButton = document.createElement('button');
+    toggleButton.className = 'theme-toggle';
+    toggleButton.innerHTML = savedTheme === 'dark' ? '☀️' : '🌙';
+    toggleButton.title = 'Cambiar tema';
+    toggleButton.onclick = toggleDarkMode;
+    document.body.appendChild(toggleButton);
+}
+
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    
+    const toggleButton = document.querySelector('.theme-toggle');
+    if (toggleButton) {
+        toggleButton.innerHTML = isDark ? '☀️' : '🌙';
+    }
+    
+    showToast(`Modo ${isDark ? 'oscuro' : 'claro'} activado`, 'info', 2000);
+}
+
+// ==================== FUNCIONES ORIGINALES MEJORADAS ====================
 
 function initializeRealTimeValidation() {
     const nombreInput = document.getElementById('nombre');
@@ -242,6 +725,8 @@ function validateField(element, fieldType) {
     setTimeout(() => {
         feedbackContainer.style.opacity = '1';
     }, 10);
+    
+    updateProgress();
 }
 
 function addCharCounter(element, maxLength) {
@@ -280,7 +765,6 @@ function updateCharCounter(element, maxLength) {
     }
 }
 
-
 function initializePriorityAutomation() {
     const categoriaSelect = document.getElementById('categoria');
     const prioridadSelect = document.getElementById('prioridad');
@@ -289,12 +773,10 @@ function initializePriorityAutomation() {
         prioridadSelect.disabled = true;
         prioridadSelect.style.opacity = '0.7';
         prioridadSelect.style.cursor = 'not-allowed';
-
         prioridadSelect.title = 'La prioridad se asigna automáticamente según la categoría seleccionada';
 
         categoriaSelect.addEventListener('change', function () {
             const categoriaSeleccionada = this.value;
-
             if (categoriaSeleccionada) {
                 setPrioridadAutomatica(categoriaSeleccionada);
             } else {
@@ -322,10 +804,7 @@ function setPrioridadAutomatica(categoriaId) {
         }
 
         const categoriaName = getCategoryName(categoriaId);
-        showMessage(`Prioridad establecida como "${nuevaPrioridad.toUpperCase()}"para problemas de ${categoriaName}.`, 'info');
-        setTimeout(() => {
-            hideMessage();
-        }, 3000);
+        showToast(`Prioridad establecida como "${nuevaPrioridad.toUpperCase()}" para problemas de ${categoriaName}.`, 'info', 3000);
     }
 }
 
@@ -354,14 +833,14 @@ function handleImagePreview() {
             if (file) {
                 const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
                 if (!validTypes.includes(file.type)) {
-                    showMessage('Por favor selecciona una imagen válida (JPG, PNG o GIF)', 'error');
+                    showToast('Por favor selecciona una imagen válida (JPG, PNG o GIF)', 'error');
                     imageInput.value = '';
                     return;
                 }
 
                 const maxSize = 5 * 1024 * 1024;
                 if (file.size > maxSize) {
-                    showMessage('La imagen no puede superar los 5MB', 'error');
+                    showToast('La imagen no puede superar los 5MB', 'error');
                     imageInput.value = '';
                     return;
                 }
@@ -376,7 +855,7 @@ function handleImagePreview() {
                 };
                 reader.readAsDataURL(file);
 
-                showMessage('Imagen cargada correctamente', 'success');
+                showToast('Imagen cargada correctamente', 'success', 2000);
             }
         });
     }
@@ -395,8 +874,7 @@ function removeImage() {
         imagePreview.src = '';
         filePreview.style.display = 'none';
         wrapper.classList.remove('has-file');
-
-        showMessage('Imagen eliminada', 'info');
+        showToast('Imagen eliminada', 'info', 2000);
     }
 }
 
@@ -442,7 +920,7 @@ async function handleSubmit(event) {
         const result = await response.json();
 
         if (result.success) {
-            showMessage('¡Ticket creado exitosamente! ID: ' + result.ticket_id, 'success');
+            showToast('¡Ticket creado exitosamente! ID: ' + result.ticket_id, 'success', 5000);
             document.getElementById('ticketForm').reset();
             removeImage();
             clearAutoSave();
@@ -463,16 +941,18 @@ async function handleSubmit(event) {
                 el.innerHTML = '';
                 el.className = 'validation-icon';
             });
+            
+            updateProgress();
 
             setTimeout(() => {
-                showMessage('Recibirás una confirmación por correo electrónico. Puedes consultar el estado de tu ticket en la pestaña "Consultar Tickets".', 'info');
+                showToast('Recibirás una confirmación por correo electrónico. Puedes consultar el estado de tu ticket en la pestaña "Consultar Tickets".', 'info', 6000);
             }, 2000);
         } else {
-            showMessage('Error al crear el ticket: ' + result.message, 'error');
+            showToast('Error al crear el ticket: ' + result.message, 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        showMessage('Error de conexión. Por favor, intenta nuevamente.', 'error');
+        showToast('Error de conexión. Por favor, intenta nuevamente.', 'error');
     } finally {
         setLoadingState(submitBtn, btnText, btnLoading, false);
     }
@@ -515,7 +995,7 @@ function validateForm(formData) {
     }
 
     if (errors.length > 0) {
-        showMessage('Por favor corrige los siguientes errores: \n• ' + errors.join('\n• '), 'error');
+        showToast('Por favor corrige los siguientes errores:\n• ' + errors.join('\n• '), 'error', 8000);
         return false;
     }
 
@@ -542,12 +1022,12 @@ async function consultarTickets() {
     const email = document.getElementById('emailConsulta').value.trim();
 
     if (!email) {
-        showMessage('Por favor ingresa tu correo electrónico', 'error');
+        showToast('Por favor ingresa tu correo electrónico', 'error');
         return;
     }
 
     const resultContainer = document.getElementById('ticketsResults');
-    resultContainer.innerHTML = '<div class="loading">Buscando tickets...</div>';
+    resultContainer.innerHTML = '<div class="loading">🔍 Buscando tickets...</div>';
 
     try {
         const response = await fetch(`functions/php/consultar_tickets.php?email=${encodeURIComponent(email)}`);
@@ -555,13 +1035,16 @@ async function consultarTickets() {
 
         if (result.success) {
             displayTickets(result.tickets);
+            showToast(`Se encontraron ${result.tickets.length} ticket(s)`, 'success', 3000);
         } else {
-            resultContainer.innerHTML = '<div class="no-tickets">No se encontraron tickets para este correo electrónico.</div>';
+            resultContainer.innerHTML = '<div class="no-tickets">📭 No se encontraron tickets para este correo electrónico.</div>';
+            showToast('No se encontraron tickets', 'info');
         }
 
     } catch (error) {
         console.error('Error:', error);
-        resultContainer.innerHTML = '<div class="error">Error al consultar los tickets. Por favor, intenta nuevamente.</div>';
+        resultContainer.innerHTML = '<div class="error">❌ Error al consultar los tickets. Por favor, intenta nuevamente.</div>';
+        showToast('Error al consultar tickets', 'error');
     }
 }
 
@@ -569,11 +1052,11 @@ function displayTickets(tickets) {
     const container = document.getElementById('ticketsResults');
 
     if (!tickets || tickets.length === 0) {
-        container.innerHTML = '<div class="no-tickets">No tienes tickets registrados.</div>';
+        container.innerHTML = '<div class="no-tickets">📭 No tienes tickets registrados.</div>';
         return;
     }
 
-    let html = '<h3>Tus Tickets:</h3>';
+    let html = '<h3>📋 Tus Tickets:</h3>';
 
     tickets.forEach(ticket => {
         const statusClass = `status-${ticket.estado.toLowerCase().replace(' ', '-')}`;
@@ -587,9 +1070,9 @@ function displayTickets(tickets) {
                 </div>
                 <div class="ticket-title">${escapeHtml(ticket.titulo)}</div>
                 <div class="ticket-meta">
-                    <span>Prioridad: ${ticket.prioridad}</span>
-                    <span>Categoría: ${ticket.categoria_nombre}</span>
-                    <span>Fecha: ${formatDate(ticket.fecha_creacion)}</span>
+                    <span>⚡ Prioridad: ${ticket.prioridad}</span>
+                    <span>📁 Categoría: ${ticket.categoria_nombre}</span>
+                    <span>📅 Fecha: ${formatDate(ticket.fecha_creacion)}</span>
                 </div>
             </div>
         `;
@@ -606,11 +1089,11 @@ async function showTicketDetails(ticketId) {
         if (result.success) {
             displayTicketModal(result.ticket);
         } else {
-            showMessage('Error al cargar los detalles del ticket', 'error');
+            showToast('Error al cargar los detalles del ticket', 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        showMessage('Error al cargar los detalles del ticket', 'error');
+        showToast('Error al cargar los detalles del ticket', 'error');
     }
 }
 
@@ -623,52 +1106,52 @@ function displayTicketModal(ticket) {
     let html = `
         <div class="ticket-details">
             <div class="ticket-header-modal">
-                <h2>Ticket #${ticket.id}</h2>
+                <h2>🎫 Ticket #${ticket.id}</h2>
                 <span class="ticket-status ${statusClass}">${ticket.estado}</span>
             </div>
             
             <div class="ticket-info-grid">
                 <div class="info-item">
-                    <strong>Título:</strong>
+                    <strong>📝 Título:</strong>
                     <p>${escapeHtml(ticket.titulo)}</p>
                 </div>
                 
                 <div class="info-item">
-                    <strong>Categoría:</strong>
+                    <strong>📁 Categoría:</strong>
                     <p>${ticket.categoria_nombre}</p>
                 </div>
                 
                 <div class="info-item">
-                    <strong>Prioridad:</strong>
+                    <strong>⚡ Prioridad:</strong>
                     <span class="priority-badge priority-${ticket.prioridad.toLowerCase()}">${ticket.prioridad}</span>
                 </div>
                 
                 <div class="info-item">
-                    <strong>Fecha de Creación:</strong>
+                    <strong>📅 Fecha de Creación:</strong>
                     <p>${formatDate(ticket.fecha_creacion)}</p>
                 </div>
                 
                 <div class="info-item">
-                    <strong>Última Actualización:</strong>
+                    <strong>🔄 Última Actualización:</strong>
                     <p>${formatDate(ticket.fecha_actualizacion)}</p>
                 </div>
                 
                 ${ticket.asignado_a ? `
                 <div class="info-item">
-                    <strong>Asignado a:</strong>
+                    <strong>👤 Asignado a:</strong>
                     <p>${escapeHtml(ticket.asignado_a)}</p>
                 </div>
                 ` : ''}
             </div>
             
             <div class="info-item full-width">
-                <strong>Descripción:</strong>
+                <strong>📄 Descripción:</strong>
                 <div class="description-box">${escapeHtml(ticket.descripcion).replace(/\n/g, '<br>')}</div>
             </div>
             
             ${ticket.imagen_url ? `
             <div class="info-item full-width">
-                <strong>Imagen adjunta:</strong>
+                <strong>🖼️ Imagen adjunta:</strong>
                 <div class="ticket-image-container">
                     <img src="${ticket.imagen_url}" alt="Imagen del ticket" class="ticket-image" onclick="window.open('${ticket.imagen_url}', '_blank')">
                 </div>
@@ -677,13 +1160,13 @@ function displayTicketModal(ticket) {
             
             ${ticket.comentarios && ticket.comentarios.length > 0 ? `
             <div class="comentarios-section">
-                <h3>Comentarios y Respuestas:</h3>
+                <h3>💬 Comentarios y Respuestas (${ticket.comentarios.length}):</h3>
                 <div class="comentarios-list">
                     ${ticket.comentarios.map(comentario => `
                         <div class="comentario">
                             <div class="comentario-header">
-                                <strong>${escapeHtml(comentario.autor)}</strong>
-                                <span class="comentario-fecha">${formatDate(comentario.fecha_comentario)}</span>
+                                <strong>👤 ${escapeHtml(comentario.autor)}</strong>
+                                <span class="comentario-fecha">📅 ${formatDate(comentario.fecha_comentario)}</span>
                             </div>
                             <div class="comentario-texto">${escapeHtml(comentario.comentario).replace(/\n/g, '<br>')}</div>
                         </div>
@@ -724,21 +1207,14 @@ function setLoadingState(submitBtn, btnText, btnLoading, isLoading) {
 }
 
 function showMessage(message, type = 'info') {
-    const messageDiv = document.getElementById('mensaje');
-    messageDiv.className = `mensaje ${type}`;
-    messageDiv.textContent = message;
-    messageDiv.style.display = 'block';
-
-    setTimeout(() => {
-        hideMessage();
-    }, 5000);
-
-    messageDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    showToast(message, type);
 }
 
 function hideMessage() {
     const messageDiv = document.getElementById('mensaje');
-    messageDiv.style.display = 'none';
+    if (messageDiv) {
+        messageDiv.style.display = 'none';
+    }
 }
 
 function clearMessages() {
@@ -784,35 +1260,19 @@ function formatDate(dateString) {
 }
 
 function clearAutoSave() {
-    const form = document.getElementById('ticketForm');
-    if (form) {
-        const inputs = form.querySelectorAll('input, select, textarea');
-        inputs.forEach(input => {
-            if (input.name) {
-                localStorage.removeItem(`ticket_${input.name}`);
-            }
-        });
-    }
+    localStorage.removeItem('ticket_autosave');
 }
 
 window.addEventListener('error', function (event) {
     console.error('Error global:', event.error);
-    showMessage('Ha ocurrido un error inesperado. Por favor, recarga la página e intenta nuevamente.', 'error');
+    showToast('Ha ocurrido un error inesperado. Por favor, recarga la página e intenta nuevamente.', 'error', 8000);
 });
 
-document.addEventListener('keydown', function (event) {
-    if (event.key === 'Escape') {
-        closeModal();
-    }
-
-    if (event.ctrlKey && event.key === 'Enter') {
-        const activeTab = document.querySelector('.tab-content.active');
-        if (activeTab && activeTab.id === 'crear') {
-            const form = document.getElementById('ticketForm');
-            if (form) {
-                const submitEvent = new Event('submit');
-                form.dispatchEvent(submitEvent);
-            }
-        }
-    }
-});
+// Exponer funciones globales necesarias
+window.restoreData = restoreData;
+window.discardAutoSave = discardAutoSave;
+window.removeImage = removeImage;
+window.showTab = showTab;
+window.consultarTickets = consultarTickets;
+window.showTicketDetails = showTicketDetails;
+window.closeModal = closeModal;
