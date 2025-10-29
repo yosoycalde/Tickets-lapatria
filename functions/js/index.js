@@ -171,7 +171,7 @@ function showRestorePrompt(data, savedDate) {
     prompt.className = 'restore-prompt';
     prompt.innerHTML = `
         <div class="restore-content">
-            <h3>💾 Borrador Encontrado</h3>
+            <h3>Borrador Encontrado</h3>
             <p>${message}</p>
             <div class="restore-actions">
                 <button class="btn-restore" onclick="restoreData()">Restaurar</button>
@@ -239,8 +239,6 @@ function getTimeAgo(date) {
     return `${Math.floor(seconds / 86400)} días`;
 }
 
-// ==================== SUGERENCIAS INTELIGENTES ====================
-
 function initializeSmartSuggestions() {
     const categoriaSelect = document.getElementById('categoria');
     const tituloInput = document.getElementById('titulo');
@@ -296,7 +294,7 @@ function showDescriptionTips() {
         tipElement = document.createElement('div');
         tipElement.className = 'description-tips';
         tipElement.innerHTML = `
-            <div class="tips-header">💭 Tips para una mejor descripción:</div>
+            <div class="tips-header">Tips para una mejor descripción:</div>
             <ul>
                 ${tips.map(tip => `<li>${tip}</li>`).join('')}
             </ul>
@@ -363,11 +361,9 @@ function getProgressColor(percentage) {
     return '#48bb78';
 }
 
-// ==================== ATAJOS DE TECLADO ====================
 
 function initializeKeyboardShortcuts() {
     document.addEventListener('keydown', function(e) {
-        // Ctrl/Cmd + S = Guardar borrador
         if ((e.ctrlKey || e.metaKey) && e.key === 's') {
             e.preventDefault();
             autoSaveFormData();
@@ -421,7 +417,7 @@ function showShortcutsModal() {
     modal.className = 'shortcuts-modal';
     modal.innerHTML = `
         <div class="shortcuts-content">
-            <h3>⌨️ Atajos de Teclado</h3>
+            <h3>⌨Atajos de Teclado</h3>
             <div class="shortcut-list">
                 <div class="shortcut-item">
                     <kbd>Ctrl/Cmd</kbd> + <kbd>S</kbd>
@@ -454,8 +450,6 @@ function showShortcutsModal() {
     });
 }
 
-// ==================== TOOLTIPS DE AYUDA ====================
-
 function addHelpTooltips() {
     const fieldsWithHelp = {
         'titulo': 'Un título claro ayuda a priorizar tu ticket. Ejemplo: "Error al imprimir" es mejor que "Ayuda"',
@@ -478,37 +472,6 @@ function addHelpTooltips() {
         }
     });
 }
-
-// ==================== MODO OSCURO ====================
-
-function initializeDarkMode() {
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    if (savedTheme === 'dark') {
-        document.body.classList.add('dark-mode');
-    }
-    
-    const toggleButton = document.createElement('button');
-    toggleButton.className = 'theme-toggle';
-    toggleButton.innerHTML = savedTheme === 'dark' ? '☀️' : '🌙';
-    toggleButton.title = 'Cambiar tema';
-    toggleButton.onclick = toggleDarkMode;
-    document.body.appendChild(toggleButton);
-}
-
-function toggleDarkMode() {
-    document.body.classList.toggle('dark-mode');
-    const isDark = document.body.classList.contains('dark-mode');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    
-    const toggleButton = document.querySelector('.theme-toggle');
-    if (toggleButton) {
-        toggleButton.innerHTML = isDark ? '☀️' : '🌙';
-    }
-    
-    showToast(`Modo ${isDark ? 'oscuro' : 'claro'} activado`, 'info', 2000);
-}
-
-// ==================== FUNCIONES ORIGINALES MEJORADAS ====================
 
 function initializeRealTimeValidation() {
     const nombreInput = document.getElementById('nombre');
@@ -1027,7 +990,7 @@ async function consultarTickets() {
     }
 
     const resultContainer = document.getElementById('ticketsResults');
-    resultContainer.innerHTML = '<div class="loading">🔍 Buscando tickets...</div>';
+    resultContainer.innerHTML = '<div class="loading">Buscando tickets...</div>';
 
     try {
         const response = await fetch(`functions/php/consultar_tickets.php?email=${encodeURIComponent(email)}`);
@@ -1037,13 +1000,13 @@ async function consultarTickets() {
             displayTickets(result.tickets);
             showToast(`Se encontraron ${result.tickets.length} ticket(s)`, 'success', 3000);
         } else {
-            resultContainer.innerHTML = '<div class="no-tickets">📭 No se encontraron tickets para este correo electrónico.</div>';
+            resultContainer.innerHTML = '<div class="no-tickets">No se encontraron tickets para este correo electrónico.</div>';
             showToast('No se encontraron tickets', 'info');
         }
 
     } catch (error) {
         console.error('Error:', error);
-        resultContainer.innerHTML = '<div class="error">❌ Error al consultar los tickets. Por favor, intenta nuevamente.</div>';
+        resultContainer.innerHTML = '<div class="error">Error al consultar los tickets. Por favor, intenta nuevamente.</div>';
         showToast('Error al consultar tickets', 'error');
     }
 }
@@ -1056,7 +1019,7 @@ function displayTickets(tickets) {
         return;
     }
 
-    let html = '<h3>📋 Tus Tickets:</h3>';
+    let html = '<h3>Tus Tickets:</h3>';
 
     tickets.forEach(ticket => {
         const statusClass = `status-${ticket.estado.toLowerCase().replace(' ', '-')}`;
@@ -1070,9 +1033,9 @@ function displayTickets(tickets) {
                 </div>
                 <div class="ticket-title">${escapeHtml(ticket.titulo)}</div>
                 <div class="ticket-meta">
-                    <span>⚡ Prioridad: ${ticket.prioridad}</span>
-                    <span>📁 Categoría: ${ticket.categoria_nombre}</span>
-                    <span>📅 Fecha: ${formatDate(ticket.fecha_creacion)}</span>
+                    <span>Prioridad: ${ticket.prioridad}</span>
+                    <span>Categoría: ${ticket.categoria_nombre}</span>
+                    <span>Fecha: ${formatDate(ticket.fecha_creacion)}</span>
                 </div>
             </div>
         `;
@@ -1106,52 +1069,52 @@ function displayTicketModal(ticket) {
     let html = `
         <div class="ticket-details">
             <div class="ticket-header-modal">
-                <h2>🎫 Ticket #${ticket.id}</h2>
+                <h2>Ticket #${ticket.id}</h2>
                 <span class="ticket-status ${statusClass}">${ticket.estado}</span>
             </div>
             
             <div class="ticket-info-grid">
                 <div class="info-item">
-                    <strong>📝 Título:</strong>
+                    <strong>Título:</strong>
                     <p>${escapeHtml(ticket.titulo)}</p>
                 </div>
                 
                 <div class="info-item">
-                    <strong>📁 Categoría:</strong>
+                    <strong>Categoría:</strong>
                     <p>${ticket.categoria_nombre}</p>
                 </div>
                 
                 <div class="info-item">
-                    <strong>⚡ Prioridad:</strong>
+                    <strong>Prioridad:</strong>
                     <span class="priority-badge priority-${ticket.prioridad.toLowerCase()}">${ticket.prioridad}</span>
                 </div>
                 
                 <div class="info-item">
-                    <strong>📅 Fecha de Creación:</strong>
+                    <strong>Fecha de Creación:</strong>
                     <p>${formatDate(ticket.fecha_creacion)}</p>
                 </div>
                 
                 <div class="info-item">
-                    <strong>🔄 Última Actualización:</strong>
+                    <strong>Última Actualización:</strong>
                     <p>${formatDate(ticket.fecha_actualizacion)}</p>
                 </div>
                 
                 ${ticket.asignado_a ? `
                 <div class="info-item">
-                    <strong>👤 Asignado a:</strong>
+                    <strong>Asignado a:</strong>
                     <p>${escapeHtml(ticket.asignado_a)}</p>
                 </div>
                 ` : ''}
             </div>
             
             <div class="info-item full-width">
-                <strong>📄 Descripción:</strong>
+                <strong>Descripción:</strong>
                 <div class="description-box">${escapeHtml(ticket.descripcion).replace(/\n/g, '<br>')}</div>
             </div>
             
             ${ticket.imagen_url ? `
             <div class="info-item full-width">
-                <strong>🖼️ Imagen adjunta:</strong>
+                <strong>Imagen adjunta:</strong>
                 <div class="ticket-image-container">
                     <img src="${ticket.imagen_url}" alt="Imagen del ticket" class="ticket-image" onclick="window.open('${ticket.imagen_url}', '_blank')">
                 </div>
@@ -1160,13 +1123,13 @@ function displayTicketModal(ticket) {
             
             ${ticket.comentarios && ticket.comentarios.length > 0 ? `
             <div class="comentarios-section">
-                <h3>💬 Comentarios y Respuestas (${ticket.comentarios.length}):</h3>
+                <h3>Comentarios y Respuestas (${ticket.comentarios.length}):</h3>
                 <div class="comentarios-list">
                     ${ticket.comentarios.map(comentario => `
                         <div class="comentario">
                             <div class="comentario-header">
-                                <strong>👤 ${escapeHtml(comentario.autor)}</strong>
-                                <span class="comentario-fecha">📅 ${formatDate(comentario.fecha_comentario)}</span>
+                                <strong>${escapeHtml(comentario.autor)}</strong>
+                                <span class="comentario-fecha">${formatDate(comentario.fecha_comentario)}</span>
                             </div>
                             <div class="comentario-texto">${escapeHtml(comentario.comentario).replace(/\n/g, '<br>')}</div>
                         </div>
@@ -1268,7 +1231,6 @@ window.addEventListener('error', function (event) {
     showToast('Ha ocurrido un error inesperado. Por favor, recarga la página e intenta nuevamente.', 'error', 8000);
 });
 
-// Exponer funciones globales necesarias
 window.restoreData = restoreData;
 window.discardAutoSave = discardAutoSave;
 window.removeImage = removeImage;
