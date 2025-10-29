@@ -12,13 +12,9 @@ const categoriaPrioridad = {
     '7': 'baja'
 };
 
-// ==================== NUEVAS CARACTERÍSTICAS ====================
-
-// Sistema de autoguardado
 let autoSaveTimer = null;
-const AUTOSAVE_DELAY = 2000; // 2 segundos
+const AUTOSAVE_DELAY = 2000;
 
-// Sugerencias contextuales
 const sugerenciasPorCategoria = {
     '1': 'Ejemplo: "No puedo acceder al sistema de correo" o "Error al imprimir documentos"',
     '2': 'Ejemplo: "Contapyme no guarda los datos" o "Error al generar reporte"',
@@ -29,7 +25,6 @@ const sugerenciasPorCategoria = {
     '7': 'Ejemplo: "Solicitud de nuevo equipo" o "Consulta general"'
 };
 
-// Toast notifications (más amigables que los alerts)
 function showToast(message, type = 'info', duration = 5000) {
     const existingToast = document.querySelector('.toast-notification');
     if (existingToast) {
@@ -45,11 +40,11 @@ function showToast(message, type = 'info', duration = 5000) {
             <button class="toast-close" onclick="this.parentElement.parentElement.remove()">×</button>
         </div>
     `;
-    
+
     document.body.appendChild(toast);
-    
+
     setTimeout(() => toast.classList.add('show'), 10);
-    
+
     if (duration > 0) {
         setTimeout(() => {
             toast.classList.remove('show');
@@ -67,8 +62,6 @@ function getToastIcon(type) {
     };
     return icons[type] || 'ℹ';
 }
-
-// ==================== INICIALIZACIÓN MEJORADA ====================
 
 function initializeApp() {
     const form = document.getElementById('ticketForm');
@@ -92,7 +85,6 @@ function initializeApp() {
     initializeSmartSuggestions();
 }
 
-// ==================== AUTOGUARDADO ====================
 
 function initializeAutoSave() {
     const form = document.getElementById('ticketForm');
@@ -117,7 +109,7 @@ function autoSaveFormData() {
 
     const formData = {};
     const inputs = form.querySelectorAll('input, select, textarea');
-    
+
     inputs.forEach(input => {
         if (input.type !== 'file' && input.name && input.value) {
             formData[input.name] = input.value;
@@ -129,7 +121,7 @@ function autoSaveFormData() {
             data: formData,
             timestamp: new Date().toISOString()
         };
-        
+
         try {
             localStorage.setItem('ticket_autosave', JSON.stringify(dataToSave));
             showAutoSaveIndicator();
@@ -166,7 +158,7 @@ function restoreAutoSavedData() {
 function showRestorePrompt(data, savedDate) {
     const timeAgo = getTimeAgo(savedDate);
     const message = `Se encontró un borrador guardado hace ${timeAgo}. ¿Deseas restaurarlo?`;
-    
+
     const prompt = document.createElement('div');
     prompt.className = 'restore-prompt';
     prompt.innerHTML = `
@@ -179,7 +171,7 @@ function showRestorePrompt(data, savedDate) {
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(prompt);
     setTimeout(() => prompt.classList.add('show'), 10);
 }
@@ -190,7 +182,7 @@ function restoreData() {
         if (!saved) return;
 
         const { data } = JSON.parse(saved);
-        
+
         Object.keys(data).forEach(name => {
             const input = document.querySelector(`[name="${name}"]`);
             if (input && input.type !== 'file') {
@@ -215,16 +207,16 @@ function discardAutoSave() {
 
 function showAutoSaveIndicator() {
     let indicator = document.querySelector('.autosave-indicator');
-    
+
     if (!indicator) {
         indicator = document.createElement('div');
         indicator.className = 'autosave-indicator';
         indicator.textContent = '💾 Guardado';
         document.body.appendChild(indicator);
     }
-    
+
     indicator.classList.add('show');
-    
+
     setTimeout(() => {
         indicator.classList.remove('show');
     }, 2000);
@@ -232,7 +224,7 @@ function showAutoSaveIndicator() {
 
 function getTimeAgo(date) {
     const seconds = Math.floor((new Date() - date) / 1000);
-    
+
     if (seconds < 60) return 'menos de un minuto';
     if (seconds < 3600) return `${Math.floor(seconds / 60)} minutos`;
     if (seconds < 86400) return `${Math.floor(seconds / 3600)} horas`;
@@ -245,7 +237,7 @@ function initializeSmartSuggestions() {
     const descripcionInput = document.getElementById('descripcion');
 
     if (categoriaSelect && tituloInput) {
-        categoriaSelect.addEventListener('change', function() {
+        categoriaSelect.addEventListener('change', function () {
             const suggestion = sugerenciasPorCategoria[this.value];
             if (suggestion) {
                 showSuggestion(tituloInput, suggestion);
@@ -254,7 +246,7 @@ function initializeSmartSuggestions() {
     }
 
     if (descripcionInput) {
-        descripcionInput.addEventListener('focus', function() {
+        descripcionInput.addEventListener('focus', function () {
             if (!this.value) {
                 showDescriptionTips();
             }
@@ -264,16 +256,16 @@ function initializeSmartSuggestions() {
 
 function showSuggestion(input, text) {
     let suggestion = input.parentElement.querySelector('.smart-suggestion');
-    
+
     if (!suggestion) {
         suggestion = document.createElement('div');
         suggestion.className = 'smart-suggestion';
         input.parentElement.appendChild(suggestion);
     }
-    
+
     suggestion.innerHTML = `<span class="suggestion-icon">💡</span> ${text}`;
     suggestion.classList.add('show');
-    
+
     setTimeout(() => {
         suggestion.classList.remove('show');
     }, 8000);
@@ -286,10 +278,10 @@ function showDescriptionTips() {
         '¿Ya intentaste alguna solución?',
         '¿El problema es recurrente o único?'
     ];
-    
+
     const descripcionInput = document.getElementById('descripcion');
     let tipElement = descripcionInput.parentElement.querySelector('.description-tips');
-    
+
     if (!tipElement) {
         tipElement = document.createElement('div');
         tipElement.className = 'description-tips';
@@ -301,11 +293,9 @@ function showDescriptionTips() {
         `;
         descripcionInput.parentElement.appendChild(tipElement);
     }
-    
+
     tipElement.classList.add('show');
 }
-
-// ==================== INDICADOR DE PROGRESO ====================
 
 function initializeProgressIndicator() {
     const form = document.getElementById('ticketForm');
@@ -319,7 +309,7 @@ function initializeProgressIndicator() {
         </div>
         <div class="progress-text">Completado: <span>0%</span></div>
     `;
-    
+
     form.insertBefore(progressBar, form.firstChild);
 
     const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
@@ -332,24 +322,24 @@ function initializeProgressIndicator() {
 function updateProgress() {
     const form = document.getElementById('ticketForm');
     const requiredFields = form.querySelectorAll('input[required], select[required], textarea[required]');
-    
+
     let completed = 0;
     requiredFields.forEach(field => {
         if (field.value && field.value.trim() !== '') {
             completed++;
         }
     });
-    
+
     const percentage = Math.round((completed / requiredFields.length) * 100);
-    
+
     const progressFill = document.querySelector('.progress-fill');
     const progressText = document.querySelector('.progress-text span');
-    
+
     if (progressFill) {
         progressFill.style.width = percentage + '%';
         progressFill.style.backgroundColor = getProgressColor(percentage);
     }
-    
+
     if (progressText) {
         progressText.textContent = percentage + '%';
     }
@@ -363,14 +353,13 @@ function getProgressColor(percentage) {
 
 
 function initializeKeyboardShortcuts() {
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
         if ((e.ctrlKey || e.metaKey) && e.key === 's') {
             e.preventDefault();
             autoSaveFormData();
             showToast('Borrador guardado manualmente', 'success', 2000);
         }
-        
-        // Ctrl/Cmd + Enter = Enviar formulario
+
         if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
             const activeTab = document.querySelector('.tab-content.active');
             if (activeTab && activeTab.id === 'crear') {
@@ -381,15 +370,13 @@ function initializeKeyboardShortcuts() {
                 }
             }
         }
-        
-        // Esc = Cerrar modal
+
         if (e.key === 'Escape') {
             closeModal();
             const restorePrompt = document.querySelector('.restore-prompt');
             if (restorePrompt) restorePrompt.remove();
         }
-        
-        // Ctrl/Cmd + K = Buscar tickets
+
         if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
             e.preventDefault();
             showTab('consultar');
@@ -398,8 +385,7 @@ function initializeKeyboardShortcuts() {
             }, 100);
         }
     });
-    
-    // Mostrar atajos disponibles
+
     addKeyboardShortcutsHelp();
 }
 
@@ -439,11 +425,11 @@ function showShortcutsModal() {
             <button class="btn-close-shortcuts" onclick="this.closest('.shortcuts-modal').remove()">Cerrar</button>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
     setTimeout(() => modal.classList.add('show'), 10);
-    
-    modal.addEventListener('click', function(e) {
+
+    modal.addEventListener('click', function (e) {
         if (e.target === modal) {
             modal.remove();
         }
@@ -457,7 +443,7 @@ function addHelpTooltips() {
         'categoria': 'Selecciona la categoría que mejor describa tu problema',
         'departamento': 'Esto nos ayuda a dirigir tu ticket al área correcta'
     };
-    
+
     Object.keys(fieldsWithHelp).forEach(fieldName => {
         const field = document.getElementById(fieldName);
         if (field) {
@@ -688,7 +674,7 @@ function validateField(element, fieldType) {
     setTimeout(() => {
         feedbackContainer.style.opacity = '1';
     }, 10);
-    
+
     updateProgress();
 }
 
@@ -904,7 +890,7 @@ async function handleSubmit(event) {
                 el.innerHTML = '';
                 el.className = 'validation-icon';
             });
-            
+
             updateProgress();
 
             setTimeout(() => {
