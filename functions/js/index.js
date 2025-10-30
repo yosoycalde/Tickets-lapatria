@@ -605,7 +605,7 @@ function validateField(element, fieldType) {
                 isValid = false;
                 message = 'Debes seleccionar una categoría';
             } else {
-                message = '✓ Categoría seleccionada';
+                message = 'Categoría seleccionada';
             }
             break;
 
