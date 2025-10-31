@@ -327,7 +327,7 @@ $action = $_GET['action'] ?? '';
             </form>
         <?php else: ?>
             <a href="admin.html" class="btn btn-primary">
-                ← Volver al Panel de Administración
+                Volver al Panel de Administración
             </a>
             
             <a href="index.html" class="btn btn-secondary">
