@@ -1001,7 +1001,7 @@ function displayTickets(tickets) {
     const container = document.getElementById('ticketsResults');
 
     if (!tickets || tickets.length === 0) {
-        container.innerHTML = '<div class="no-tickets">📭 No tienes tickets registrados.</div>';
+        container.innerHTML = '<div class="no-tickets">No tienes tickets registrados.</div>';
         return;
     }
 
